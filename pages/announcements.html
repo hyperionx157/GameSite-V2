@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements — Dev Portal</title>
+    <link rel="stylesheet" href="../assets/css/Main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.css">
+    <style>
+        .announcements-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .announcement-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .announcement-header h1 {
+            color: var(--accent);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-actions {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-actions h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .announcement-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .announcement-form input,
+        .announcement-form textarea {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.8rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        
+        .announcement-form input:focus,
+        .announcement-form textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        
+        .announcement-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .post-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .post-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        
+        .announcements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .announcement-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .announcement-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .announcement-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .announcement-meta {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .announcement-content {
+            color: var(--text);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+        }
+        
+        .announcement-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .delete-announcement {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .delete-announcement:hover {
+            background: rgba(231, 76, 60, 0.2);
+        }
+        
+        .no-announcements {
+            text-align: center;
+            color: var(--muted);
+            padding: 3rem;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .search-container {
+            margin-bottom: 2rem;
+        }
+        
+        .search-box {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .search-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+        }
+        
+        .search-box i {
+            color: var(--muted);
+            font-size: 1rem;
+        }
+        
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        
+        .search-box input::placeholder {
+            color: var(--muted);
+        }
+        
+        .clear-search-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0.2rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .clear-search-btn:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+        
+        .search-results {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .search-results.active {
+            display: block;
+        }
+        
+        .search-highlight {
+            background: rgba(var(--accent-rgb), 0.2);
+            padding: 0.1rem 0.2rem;
+            border-radius: 3px;
+        }
+        
+        .side-nav-link {
+            text-decoration: none;
+        }
+        .side-nav-link:hover {
+            text-decoration: none;
+        }
+        .side-nav-btn {
+            text-decoration: none !important;
+        }
+        .side-nav-btn:hover {
+            text-decoration: none !important;
+        }
+        .side-nav-btn span {
+            text-decoration: none !important;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4dSgLokC2lGg3FFtVfImg7IspQgUyQgc",
+            authDomain: "githubv2-1b9d0.firebaseapp.com",
+            projectId: "githubv2-1b9d0",
+            storageBucket: "githubv2-1b9d0.firebasestorage.app",
+            messagingSenderId: "971057847754",
+            appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
+            measurementId: "G-3K434YVGSZ"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+    </script>
+    <script src="../scripts/secure-storage.js"></script>
+    <script src="../assets/js/settings.js"></script>
+    <script src="../scripts/auth.js"></script>
+</head>
+<body>
+
+    <div id="mainApp">
+        <div id="sideMenu" class="side-menu">
+            <div class="side-menu-header">
+                <div class="side-logo">
+                    <i class="fas fa-cube"></i>
+                    <span>Dev Portal</span>
+                </div>
+            </div>
+            <div class="side-menu-user">
+                <div id="sideAvatarInitials" class="side-avatar"></div>
+                <div class="side-user-info">
+                    <span id="sideUserName" class="side-username"></span>
+                    <span id="sideUserReal" class="side-realname"></span>
+                </div>
+            </div>
+            <nav class="side-nav">
+                <a href="index.html" class="side-nav-btn" data-section="home">
+                    <i class="fas fa-home"></i><span>Home</span>
+                </a>
+                <a href="index.html#library" class="side-nav-btn" data-section="library">
+                    <i class="fas fa-cube"></i><span>Library</span>
+                </a>
+                <a href="index.html#tools" class="side-nav-btn" data-section="tools">
+                    <i class="fas fa-tools"></i><span>Tools</span>
+                </a>
+                <a href="index.html#forum" class="side-nav-btn" data-section="forum">
+                    <i class="fas fa-comment-dots"></i><span>Feedback</span>
+                </a>
+                <a href="index.html#chat" class="side-nav-btn" data-section="chat" id="navChatLink">
+                    <i class="fas fa-comments"></i><span>Live Chat</span>
+                    <span id="chatUnreadBadge" class="side-badge" style="display:none;">!</span>
+                </a>
+                <button class="side-nav-btn active" data-section="announcements">
+                    <i class="fas fa-bullhorn"></i><span>Announcements</span>
+                </button>
+                <a href="settings.html" class="side-nav-btn" data-section="settings">
+                    <i class="fas fa-cog"></i><span>Settings</span>
+                </a>
+            </nav>
+            <div class="side-menu-footer">
+                <button id="logoutBtn" class="side-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mainContent" class="main-content">
+            <div class="topbar">
+                <button id="menuToggleBtn" class="menu-toggle-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="pageTitle" class="page-title">Announcements</h1>
+            </div>
+
+            <div class="announcements-container">
+                <div class="announcement-header">
+                    <h1><i class="fas fa-bullhorn"></i> Announcements</h1>
+                    <p>Stay updated with the latest news and updates</p>
+                </div>
+                
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search announcements..." autocomplete="off">
+                        <button id="clearSearchBtn" class="clear-search-btn" style="display:none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+                
+                <div id="adminPanel" class="admin-actions" style="display:none;">
+                    <h3><i class="fas fa-pen"></i> Create Announcement</h3>
+                    <div class="announcement-form">
+                        <input type="text" id="announcementTitle" placeholder="Announcement Title">
+                        <textarea id="announcementContent" placeholder="Write your announcement here..."></textarea>
+                        <button id="postAnnouncementBtn" class="post-btn">
+                            <i class="fas fa-paper-plane"></i> Post Announcement
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="announcementsList" class="announcements-list">
+                    <div class="no-announcements">
+                        <i class="fas fa-bullhorn"></i>
+                        <p>No announcements yet. Check back later!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isAdmin = false;
+        let currentUser = null;
+        let allAnnouncements = []; // Store all announcements for search
+
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        function fmtTime(timestamp) {
+            if (!timestamp) return 'Just now';
+            let date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 60000);
+            if (diff < 1) return 'Just now';
+            if (diff < 60) return diff + ' minutes ago';
+            if (diff < 1440) return Math.floor(diff / 60) + ' hours ago';
+            return Math.floor(diff / 1440) + ' days ago';
+        }
+
+        function showEl(id, display) {
+            const e = document.getElementById(id);
+            if (e) e.style.display = display || 'block';
+        }
+
+        function hideEl(id) {
+            const e = document.getElementById(id);
+            if (e) e.style.display = 'none';
+        }
+
+        function toggleSideMenu() {
+            const sm = document.getElementById('sideMenu');
+            const mc = document.getElementById('mainContent');
+            if (!sm) return;
+            if (window.innerWidth <= 540) {
+                sm.classList.toggle('mobile-open');
+                return;
+            }
+            sm.classList.toggle('hidden');
+            if (mc) mc.classList.toggle('full-width');
+        }
+
+        function updateUserProfile(user) {
+            const name = user.displayName || user.email || 'Player';
+            const email = user.email || '';
+            const av = document.getElementById('sideAvatarInitials');
+            const un = document.getElementById('sideUserName');
+            const ur = document.getElementById('sideUserReal');
+            if (av) { 
+                av.textContent = getInitials(name); 
+                av.style.background = 'linear-gradient(135deg,#9b59b6,#3498db)'; 
+            }
+            if (un) un.textContent = name;
+            if (ur) ur.textContent = email;
+        }
+
+        function loadAnnouncements() {
+            db.collection('announcements')
+                .orderBy('createdAt', 'desc')
+                .limitToLast(50)
+                .onSnapshot(snapshot => {
+                    const container = document.getElementById('announcementsList');
+                    if (!container) return;
+                    
+                    // Store all announcements for search
+                    allAnnouncements = [];
+                    snapshot.forEach(doc => {
+                        allAnnouncements.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    renderAnnouncements(allAnnouncements);
+                }, error => {
+                    console.error('Error loading announcements:', error);
+                });
+        }
+
+        function renderAnnouncements(announcements) {
+            const container = document.getElementById('announcementsList');
+            if (!container) return;
+            
+            if (announcements.length === 0) {
+                container.innerHTML = '<div class="no-announcements"><i class="fas fa-bullhorn"></i><p>No announcements found.</p></div>';
+                return;
+            }
+            
+            let html = '';
+            announcements.forEach(announcement => {
+                html += `
+                    <div class="announcement-card" data-id="${announcement.id}">
+                        <div class="announcement-title">${escHtml(announcement.title)}</div>
+                        <div class="announcement-meta">
+                            <span><i class="fas fa-user"></i> ${escHtml(announcement.author)}</span>
+                            <span><i class="fas fa-clock"></i> ${fmtTime(announcement.createdAt)}</span>
+                        </div>
+                        <div class="announcement-content">${escHtml(announcement.content).replace(/\n/g, '<br>')}</div>
+                        ${isAdmin ? `<div class="announcement-actions"><button class="delete-announcement" data-id="${announcement.id}"><i class="fas fa-trash"></i> Delete</button></div>` : ''}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            
+            if (isAdmin) {
+                document.querySelectorAll('.delete-announcement').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const id = btn.getAttribute('data-id');
+                        deleteAnnouncement(id);
+                    });
+                });
+            }
+        }
+
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return escHtml(text);
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return escHtml(text).replace(regex, '<span class="search-highlight">$1</span>');
+        }
+
+        function searchAnnouncements(searchTerm) {
+            if (!searchTerm.trim()) {
+                renderAnnouncements(allAnnouncements);
+                updateSearchResults(0, true);
+                return;
+            }
+            
+            const term = searchTerm.toLowerCase();
+            const filtered = allAnnouncements.filter(announcement => {
+                return announcement.title.toLowerCase().includes(term) ||
+                       announcement.content.toLowerCase().includes(term) ||
+                       announcement.author.toLowerCase().includes(term);
+            });
+            
+            renderAnnouncements(filtered);
+            updateSearchResults(filtered.length, false);
+        }
+
+        function updateSearchResults(count, isClear = false) {
+            const searchResults = document.getElementById('searchResults');
+            if (!searchResults) return;
+            
+            if (isClear) {
+                searchResults.classList.remove('active');
+                return;
+            }
+            
+            if (count === 0 && allAnnouncements.length > 0) {
+                searchResults.innerHTML = '<small style="color: var(--muted);">No announcements found</small>';
+                searchResults.classList.add('active');
+            } else if (count < allAnnouncements.length) {
+                searchResults.innerHTML = `<small style="color: var(--muted);">Found ${count} of ${allAnnouncements.length} announcements</small>`;
+                searchResults.classList.add('active');
+            } else {
+                searchResults.classList.remove('active');
+            }
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (searchInput) searchInput.value = '';
+            if (clearBtn) clearBtn.style.display = 'none';
+            if (searchResults) searchResults.classList.remove('active');
+            
+            renderAnnouncements(allAnnouncements);
+        }
+
+        async function postAnnouncement() {
+            const title = document.getElementById('announcementTitle').value.trim();
+            const content = document.getElementById('announcementContent').value.trim();
+            
+            if (!title || !content) {
+                alert('Please fill in both title and content.');
+                return;
+            }
+            
+            try {
+                await db.collection('announcements').add({
+                    title: title,
+                    content: content,
+                    author: currentUser?.displayName || 'Admin',
+                    authorId: currentUser?.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('announcementTitle').value = '';
+                document.getElementById('announcementContent').value = '';
+                alert('Announcement posted!');
+            } catch(e) {
+                console.error('Error posting announcement:', e);
+                alert('Error posting announcement.');
+            }
+        }
+
+        async function deleteAnnouncement(id) {
+            if (!confirm('Are you sure you want to delete this announcement?')) return;
+            
+            try {
+                await db.collection('announcements').doc(id).delete();
+                alert('Announcement deleted.');
+            } catch(e) {
+                console.error('Error deleting announcement:', e);
+                alert('Error deleting announcement.');
+            }
+        }
+
+        function initAnnouncementsPage() {
+            // Prevent Main.js from calling switchSection('home')
+            const originalSwitchSection = window.switchSection;
+            if (originalSwitchSection) {
+                window.switchSection = function(name) {
+                    if (name === 'home') return; // Don't switch to home on announcements page
+                    originalSwitchSection(name);
+                };
+            }
+
+            // Set announcements as active in sidebar
+            document.querySelectorAll('.side-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const announcementsBtn = document.querySelector('.side-nav-btn[data-section="announcements"]');
+            if (announcementsBtn) announcementsBtn.classList.add('active');
+
+            // Set page title to Announcements
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle) pageTitle.textContent = 'Announcements';
+
+            // Wait for Firebase auth to be ready
+            firebase.auth().onAuthStateChanged(user => {
+                console.log('Announcements: Auth state changed, user:', user);
+                if (!user) return;
+
+                currentUser = user;
+                const username = user.email ? user.email.replace('@gamehub.local', '') : user.uid;
+                console.log('Announcements: Username:', username);
+
+                // Update user profile display
+                updateUserProfile(user);
+
+                db.collection('users').doc(username).get().then(userDoc => {
+                    console.log('Announcements: User doc exists:', userDoc.exists);
+                    if (userDoc.exists) {
+                        console.log('Announcements: User doc data:', userDoc.data());
+                        console.log('Announcements: isAdmin field:', userDoc.data().isAdmin);
+                    }
+                    const isAdminUser = (userDoc.exists && userDoc.data().isAdmin === true) || username === 'lol8';
+                    console.log('Announcements: Is admin?', isAdminUser, 'Username check:', username === 'lol8');
+
+                    if (isAdminUser) {
+                        isAdmin = true;
+                        const adminPanel = document.getElementById('adminPanel');
+                        console.log('Announcements: Admin panel element:', adminPanel);
+                        if (adminPanel) {
+                            adminPanel.style.display = 'block';
+                            console.log('Announcements: Admin panel shown, display:', adminPanel.style.display);
+                        } else {
+                            console.error('Announcements: Admin panel element not found!');
+                        }
+                    } else {
+                        console.log('Announcements: User is not admin, hiding admin panel');
+                        const adminPanel = document.getElementById('adminPanel');
+                        if (adminPanel) adminPanel.style.display = 'none';
+                    }
+
+                    loadAnnouncements();
+                }).catch(e => {
+                    console.error('Error checking admin status:', e);
+                    loadAnnouncements();
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set page title and sidebar highlight immediately
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle) pageTitle.textContent = 'Announcements';
+            
+            document.querySelectorAll('.side-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const announcementsBtn = document.querySelector('.side-nav-btn[data-section="announcements"]');
+            if (announcementsBtn) announcementsBtn.classList.add('active');
+
+            const postBtn = document.getElementById('postAnnouncementBtn');
+            if (postBtn) postBtn.addEventListener('click', postAnnouncement);
+
+            const menuToggle = document.getElementById('menuToggleBtn');
+            if (menuToggle) menuToggle.addEventListener('click', toggleSideMenu);
+
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value;
+                    if (searchTerm.trim()) {
+                        clearBtn.style.display = 'block';
+                    } else {
+                        clearBtn.style.display = 'none';
+                    }
+                    searchAnnouncements(searchTerm);
+                });
+                
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        clearSearch();
+                    }
+                });
+            }
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', clearSearch);
+            }
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    firebase.auth().signOut().then(() => {
+                        localStorage.removeItem('currentUser');
+                        if (window.SecureStorage) {
+                            window.SecureStorage.clearSession();
+                        }
+                        window.location.href = '../auth/login.html';
+                    });
+                });
+            }
+
+            initAnnouncementsPage();
+        });
+        
+        window.addEventListener('resize', () => {
+            const sm = document.getElementById('sideMenu');
+            const mc = document.getElementById('mainContent');
+            if (window.innerWidth > 540) {
+                if (sm) sm.classList.remove('mobile-open', 'hidden');
+                if (mc) mc.classList.remove('full-width');
+            }
+        });
+    </script>
+    <style>
+        .side-nav-link {
+            text-decoration: none;
+        }
+        .side-nav-link:hover {
+            text-decoration: none;
+        }
+        .side-nav-btn {
+            text-decoration: none !important;
+        }
+        .side-nav-btn:hover {
+            text-decoration: none !important;
+        }
+        .side-nav-btn span {
+            text-decoration: none !important;
+        }
+    </style>
+</body>
+</html>

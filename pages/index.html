@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dev Portal</title>
-    <link rel="stylesheet" href="assets/css/Main.css">
+    <link rel="stylesheet" href="../assets/css/Main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="assets/js/settings.js" defer></script>
-    <script src="assets/js/Main.js" defer></script>
-    <script src="live-user-tracker.js" defer></script>
+    <script src="../scripts/secure-storage.js"></script>
+    <script src="../assets/js/settings.js" defer></script>
+    <script src="../assets/js/Main.js" defer></script>
 </head>
 <body>
 
@@ -371,56 +371,14 @@
         </div>
     </div>
 
-    <!-- ═══ LOGIN ═══ -->
-    <div id="loginHub" class="login-hub" style="display:none;">
-        <div class="login-container">
-            <div class="login-header">
-                <h1>Dev Portal</h1>
-                <p>Sign in to continue</p>
-            </div>
-            <div id="loginForm" class="login-form">
-                <div class="form-group">
-                    <input type="text" id="emailInput" placeholder="Username" class="login-input">
-                </div>
-                <div class="form-group">
-                    <input type="password" id="passwordInput" placeholder="Password" class="login-input">
-                </div>
-                <button id="loginBtn" class="login-btn">
-                    <i class="fas fa-sign-in-alt"></i> Sign In
-                </button>
-                <button id="checkStatusBtn" class="login-btn" style="background: rgba(155,89,182,0.2); margin-top: 10px;">
-                    <i class="fas fa-sync-alt"></i> Check Approval Status
-                </button>
-                <div class="login-footer">
-                    <p>Don't have an account? <a href="#" id="signupLink">Sign up</a></p>
-                </div>
-            </div>
-            <div id="signupForm" class="signup-form" style="display:none;">
-                <div class="form-group">
-                    <input type="text" id="signupRealName" placeholder="Real name (e.g. John Smith)" class="login-input">
-                </div>
-                <div class="form-group">
-                    <input type="text" id="signupName" placeholder="Display name / username" class="login-input">
-                </div>
-                <div class="form-group">
-                    <input type="password" id="signupPassword" placeholder="Password (min 6 chars)" class="login-input">
-                </div>
-                <button id="signupBtn" class="login-btn">
-                    <i class="fas fa-user-plus"></i> Create Account
-                </button>
-                <div class="login-footer">
-                    <p>Already have an account? <a href="#" id="backToLogin">Sign in</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="loadingOverlay" class="loading-overlay" style="display:none;">
         <div class="loading-spinner">
             <i class="fas fa-spinner fa-spin"></i>
             <p>Loading...</p>
         </div>
     </div>
+
+    <div id="notificationContainer" class="notification-container"></div>
 
 </body>
 </html>

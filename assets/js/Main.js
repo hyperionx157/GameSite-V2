@@ -16,23 +16,23 @@ const GAME_URLS = {
     'ddlc-web':          CLOUDFLARE_R2_BASE + 'ddlc-web-main/index.html',
     'undertale-yellow':  CLOUDFLARE_R2_BASE + 'undertale-yellow/index.html',
     'schoolboy-runaway': CLOUDFLARE_R2_BASE + 'schoolboy-runaway/index.html',
-    'pokemon-emerald':   'games/EmuGames/Pokemon - Emerald Version (U).html',
-    'need-for-speed':    'games/EmuGames/Need for Speed - Most Wanted (USA, Europe) (En,Fr,De,It).html',
-    'call-of-duty':      'games/EmuGames/Call of Duty - Modern Warfare 3 - Defiance (USA).html',
+    'pokemon-emerald':   '../games/EmuGames/Pokemon - Emerald Version (U).html',
+    'need-for-speed':    '../games/EmuGames/Need for Speed - Most Wanted (USA, Europe) (En,Fr,De,It).html',
+    'call-of-duty':      '../games/EmuGames/Call of Duty - Modern Warfare 3 - Defiance (USA).html',
     'space-invaders':    'https://www.crazygames.com/embed/space-invaders',
     'galaga':            'https://www.retrogames.com/play-online/galaga.html',
     'asteroids':         'https://www.crazygames.com/embed/asteroids',
     '2048':              'https://www.crazygames.com/embed/2048',
     'sudoku':            'https://www.crazygames.com/embed/sudoku',
     'minesweeper':       'https://www.crazygames.com/embed/minesweeper',
-    'cookie-clicker':    'games/html5/cookieclicker.html',
-    'retro-bowl':        'games/html5/retrobowl.html',
-    'ovo':               'games/html5/ovo.html',
-    'adofai':            'games/html5/adofai.html',
-    'getaway-shootout':  'games/html5/getaway-shootout.html',
-    'eaglercraft':       'games/html5/eaglercraft.html',
-    'crazycattle3d':     'games/html5/crazycattle3d.html',
-    'ucn':              'games/html5/UCN.html',
+    'cookie-clicker':    '../games/html5/cookieclicker.html',
+    'retro-bowl':        '../games/html5/retrobowl.html',
+    'ovo':               '../games/html5/ovo.html',
+    'adofai':            '../games/html5/adofai.html',
+    'getaway-shootout':  '../games/html5/getaway-shootout.html',
+    'eaglercraft':       '../games/html5/eaglercraft.html',
+    'crazycattle3d':     '../games/html5/crazycattle3d.html',
+    'ucn':              '../games/html5/UCN.html',
     'fnaf1':            CLOUDFLARE_R2_BASE + '1/index.html',
     'fnaf2':            CLOUDFLARE_R2_BASE + '2/index.html',
     'fnaf3':            CLOUDFLARE_R2_BASE + '3/index.html',
@@ -40,7 +40,7 @@ const GAME_URLS = {
     'fnaf-sister-location': CLOUDFLARE_R2_BASE + 'sl/index.html',
     'fnaf-pizzeria-simulator': CLOUDFLARE_R2_BASE + 'ps/index.html',
     'fnaf-world':        CLOUDFLARE_R2_BASE + 'w/index.html',
-        'granny':           CLOUDFLARE_R2_BASE + 'Granny-main/Granny-main/index.html',
+    'granny':           CLOUDFLARE_R2_BASE + 'Granny-main/Granny-main/index.html',
     'riddle-school-1':   'data:text/html,<html><head><script src="https://unpkg.com/@ruffle-rs/ruffle"></script></head><body style="margin:0;background:#000"><div id="player" style="width:100vw;height:100vh"></div><script>const ruffle=window.RufflePlayer.newest();const player=ruffle.createPlayer();player.style.width="100%";player.style.height="100%";document.getElementById("player").appendChild(player);player.load({url:"' + CLOUDFLARE_R2_BASE + 'riddleschool.swf' + '",backgroundColor:"#000",quality:"high"});</script></body></html>',
     'riddle-school-2':   'data:text/html,<html><head><script src="https://unpkg.com/@ruffle-rs/ruffle"></script></head><body style="margin:0;background:#000"><div id="player" style="width:100vw;height:100vh"></div><script>const ruffle=window.RufflePlayer.newest();const player=ruffle.createPlayer();player.style.width="100%";player.style.height="100%";document.getElementById("player").appendChild(player);player.load({url:"' + CLOUDFLARE_R2_BASE + 'riddleschool2.swf' + '",backgroundColor:"#000",quality:"high"});</script></body></html>',
     'riddle-school-3':   'data:text/html,<html><head><script src="https://unpkg.com/@ruffle-rs/ruffle"></script></head><body style="margin:0;background:#000"><div id="player" style="width:100vw;height:100vh"></div><script>const ruffle=window.RufflePlayer.newest();const player=ruffle.createPlayer();player.style.width="100%";player.style.height="100%";document.getElementById("player").appendChild(player);player.load({url:"' + CLOUDFLARE_R2_BASE + 'riddleschool3.swf' + '",backgroundColor:"#000",quality:"high"});</script></body></html>',
@@ -50,15 +50,15 @@ const GAME_URLS = {
     'riddle-transfer-2':  'data:text/html,<html><head><script src="https://unpkg.com/@ruffle-rs/ruffle"></script></head><body style="margin:0;background:#000"><div id="player" style="width:100vw;height:100vh"></div><script>const ruffle=window.RufflePlayer.newest();const player=ruffle.createPlayer();player.style.width="100%";player.style.height="100%";document.getElementById("player").appendChild(player);player.load({url:"' + CLOUDFLARE_R2_BASE + 'riddletransfer2.swf' + '",backgroundColor:"#000",quality:"high"});</script></body></html>'
 };
 
-// ── Firebase db — assigned inside DOMContentLoaded ──────────────────
+// ── Firebase Configuration ───────────────────────────────────────────────────────
 const firebaseConfig = {
-    apiKey: "AIzaSyDhj564xAhZSR-3sxYcR8WFqVABt0PNCcs",
-    authDomain: "github-whitelist.firebaseapp.com",
-    projectId: "github-whitelist",
-    storageBucket: "github-whitelist.firebasestorage.app",
-    messagingSenderId: "552172120402",
-    appId: "1:552172120402:web:ae23acc18163d3e1ef728b",
-    measurementId: "G-R0CWMJ8B8E"
+    apiKey: "AIzaSyD4dSgLokC2lGg3FFtVfImg7IspQgUyQgc",
+    authDomain: "githubv2-1b9d0.firebaseapp.com",
+    projectId: "githubv2-1b9d0",
+    storageBucket: "githubv2-1b9d0.firebasestorage.app",
+    messagingSenderId: "971057847754",
+    appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
+    measurementId: "G-3K434YVGSZ"
 };
 
 // Initialize Firebase
@@ -68,6 +68,7 @@ try {
     console.error('[Main] Firebase initialization error:', e);
 }
 
+// ── Firebase db — assigned inside DOMContentLoaded ──────────────────
 var db = firebase.firestore();
 
 // ── Globals ─────────────────────────────────────────────────────────
@@ -84,6 +85,8 @@ var userNotifications = [];
 var unreadNotifications = 0;
 var currentSessionId = null;
 var sessionCheckInterval = null;
+
+console.log('Main.js loaded successfully!');
 
 // ── Helpers ─────────────────────────────────────────────────────────
 function getInitials(name) {
@@ -397,22 +400,20 @@ function updateChatBadges() {
 }
 
 function markChatAsRead() {
-    const user = firebase.auth().currentUser;
-    if (!user) return;
-    lastReadTimestamp = new Date();
-    localStorage.setItem('lastReadChat_' + user.uid, lastReadTimestamp.toISOString());
     unreadChatCount = 0;
     updateChatBadges();
 }
 
-// ── Notification Functions ─────────────────────────────────────────────
+// Notification Functions
 function initNotifications() {
     const user = firebase.auth().currentUser;
     if (!user) return;
     
+    currentUser = user;
     const username = user.email ? user.email.replace('@gamehub.local', '') : user.uid;
-    console.log('🔔 Initializing notifications for:', username);
+    console.log('Initializing notifications for:', username);
     
+    // Personal notifications
     db.collection('notifications')
         .where('username', '==', username)
         .orderBy('createdAt', 'desc')
@@ -430,14 +431,138 @@ function initNotifications() {
                 }
             });
             
-            console.log(`📬 ${unreadNotifications} unread notifications`);
+            console.log(`${unreadNotifications} unread notifications`);
             checkForNewApproval();
         });
+    
+    // Global announcement notifications
+    initAnnouncementNotifications();
+}
+
+function initAnnouncementNotifications() {
+    console.log('Setting up global announcement notifications...');
+    db.collection('announcements')
+        .orderBy('createdAt', 'desc')
+        .limitToLast(50)
+        .onSnapshot(snapshot => {
+            const announcements = [];
+            snapshot.forEach(doc => {
+                announcements.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            console.log('Announcement snapshot received:', announcements.length, 'announcements');
+            checkForNewAnnouncements(announcements);
+        }, error => {
+            console.error('Error loading announcements for notifications:', error);
+        });
+}
+
+function checkForNewAnnouncements(announcements) {
+    const currentCount = announcements.length;
+    console.log('Checking for new announcements:', {
+        currentCount,
+        lastCount: lastAnnouncementCount,
+        currentUser: currentUser?.uid,
+        hasNew: currentCount > lastAnnouncementCount && lastAnnouncementCount > 0
+    });
+    
+    if (lastAnnouncementCount > 0 && currentCount > lastAnnouncementCount) {
+        // New announcement posted
+        const latestAnnouncement = announcements[0]; // Most recent
+        console.log('New announcement detected:', {
+            title: latestAnnouncement.title,
+            author: latestAnnouncement.author,
+            authorId: latestAnnouncement.authorId,
+            currentUserId: currentUser?.uid,
+            shouldNotify: latestAnnouncement.authorId !== currentUser?.uid
+        });
+        
+        if (latestAnnouncement && latestAnnouncement.authorId !== currentUser?.uid) {
+            // Show notification to other users
+            console.log('Showing notification to other users');
+            showNotification(
+                'New Announcement',
+                `${latestAnnouncement.title} by ${latestAnnouncement.author}`,
+                'announcement',
+                8000
+            );
+        } else {
+            console.log('Not showing notification - user posted this announcement or no author ID match');
+        }
+    }
+    lastAnnouncementCount = currentCount;
+}
+
+function showNotification(title, message, type = 'info', duration = 5000) {
+    console.log('showNotification called:', { title, message, type, duration });
+    const container = document.getElementById('notificationContainer');
+    if (!container) {
+        console.error('Notification container not found!');
+        return;
+    }
+    console.log('Notification container found, creating notification...');
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-header">
+            <i class="fas fa-bullhorn"></i>
+            <span>${escHtml(title)}</span>
+            <button class="notification-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notification-body">${escHtml(message)}</div>
+    `;
+
+    container.appendChild(notification);
+
+    // Add close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            hideNotification(notification);
+        });
+    }
+
+    // Show notification with animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+
+    // Auto-hide after duration
+    if (duration > 0) {
+        setTimeout(() => {
+            hideNotification(notification);
+        }, duration);
+    }
+}
+
+function hideNotification(notification) {
+    if (!notification) return;
+    
+    notification.classList.remove('show');
+    notification.classList.add('hide');
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 300);
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function checkForNewApproval() {
     const approvalNotif = userNotifications.find(n => n.type === 'approval' && !n.read);
     if (approvalNotif) {
+        console.log('Found new approval notification!');
         console.log('🎉 Found new approval notification!');
         showApprovalPopup(approvalNotif);
         markNotificationRead(approvalNotif.id);
@@ -906,163 +1031,66 @@ function updateUserProfile(user) {
     if (ur) ur.textContent = email;
 }
 
-// ── Auth ─────────────────────────────────────────────────────────────
-function initAuth() {
-    firebase.auth().onAuthStateChanged(async function(user){
-        if (user) {
-            const username = user.email ? user.email.replace('@gamehub.local', '') : user.uid;
-            console.log('🔐 Auth state changed - User:', username);
-            
-            if (sessionStorage.getItem('signupInProgress') === 'true') {
-                console.log('⏳ Signup in progress, skipping approval check');
-                return;
-            }
-            
-            const saved = localStorage.getItem('lastReadChat_' + user.uid);
-            lastReadTimestamp = saved ? new Date(saved) : new Date();
-            
-            setTimeout(async () => {
-                try {
-                    const doc = await db.collection('users').doc(username).get();
-                    console.log('📄 User document check:', doc.exists ? 'Exists' : 'Not found');
-                    
-                    if (doc.exists && doc.data().allowed === true) {
-                        console.log('✅ User is approved, granting access');
-                        
-                        const storedSessionId = sessionStorage.getItem('currentSessionId');
-                        const storedUserId = sessionStorage.getItem('currentUserId');
-                        
-                        if (storedSessionId && storedUserId === user.uid) {
-                            currentSessionId = storedSessionId;
-                            console.log('🔄 Restored existing session ID from storage:', currentSessionId);
-                        } else {
-                            currentSessionId = generateSessionId();
-                            sessionStorage.setItem('currentSessionId', currentSessionId);
-                            sessionStorage.setItem('currentUserId', user.uid);
-                            console.log('🆕 Created new session ID:', currentSessionId);
-                        }
-                        
-                        try {
-                            await registerSession(user.uid);
-                            startSessionMonitoring(user.uid);
-                        } catch(sessionError) {
-                            console.error('Session registration failed:', sessionError);
-                            return;
-                        }
-                        
-                        currentUserData = { 
-                            uid: user.uid, 
-                            email: user.email, 
-                            displayName: user.displayName || username,
-                            username: username
-                        };
-                        localStorage.setItem('currentUser', JSON.stringify(currentUserData));
-                        db.collection('users').doc(username).update({
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                        }).catch(() => {});
-                        updateUserProfile(user);
-                        showEl('mainApp');
-                        hideEl('loginHub');
-                        hideEl('loadingOverlay');
-                        initChat();
-                        initForum();
-                        initGameGrid();
-                        initNotifications();
-                        switchSection('home');
-                        
-                    } else {
-                        console.log('⚠️ User not approved - pending status');
-                        
-                        // Check if pending request exists
-                        const pendingDoc = await db.collection('pendingRequests').doc(username).get();
-                        
-                        if (pendingDoc.exists) {
-                            console.log('⏳ User is pending approval - KEEPING USER LOGGED IN');
-                            sessionStorage.setItem('userApprovalStatus', 'pending');
-                            
-                            // Show pending message (only once)
-                            if (!sessionStorage.getItem('pendingMessageShown')) {
-                                alert('Your account is pending approval. You will be notified here when approved.');
-                                sessionStorage.setItem('pendingMessageShown', 'true');
-                            }
-                            
-                            // IMPORTANT: DO NOT SIGN OUT - Keep user logged in to receive notifications
-                            // Just show the login hub with pending message
-                            showEl('loginHub', 'flex');
-                            hideEl('mainApp');
-                            hideEl('loadingOverlay');
-                            
-                            // Add pending status message to login form
-                            const pendingMessage = document.getElementById('pendingStatusMessage');
-                            if (!pendingMessage) {
-                                const msgDiv = document.createElement('div');
-                                msgDiv.id = 'pendingStatusMessage';
-                                msgDiv.style.cssText = `
-                                    background: rgba(155,89,182,0.2);
-                                    border: 1px solid rgba(155,89,182,0.4);
-                                    border-radius: 8px;
-                                    padding: 12px;
-                                    margin-top: 15px;
-                                    text-align: center;
-                                    color: #9b59b6;
-                                `;
-                                msgDiv.innerHTML = `
-                                    <i class="fas fa-clock"></i>
-                                    <strong>Account Pending Approval</strong>
-                                    <p style="font-size: 12px; margin-top: 5px;">Your account is waiting for admin approval. You'll be notified here when approved.</p>
-                                `;
-                                const loginForm = document.getElementById('loginForm');
-                                if (loginForm) loginForm.appendChild(msgDiv);
-                            }
-                            
-                            // Start listening for approval notifications
-                            listenForApprovalNotifications(username);
-                            
-                        } else {
-                            console.log('❌ No pending request found for', username);
-                            firebase.auth().signOut();
-                            alert('Account not found. Please sign up first.');
-                            hideEl('loadingOverlay');
-                            showEl('loginHub', 'flex');
-                            hideEl('mainApp');
-                        }
-                    }
-                } catch(error) {
-                    console.error('Auth error:', error);
-                    firebase.auth().signOut();
-                    alert('Authentication error. Please try again.');
-                    hideEl('loadingOverlay');
-                    showEl('loginHub', 'flex');
-                    hideEl('mainApp');
-                }
-            }, 500);
-        } else {
-            console.log('🔐 No user logged in');
-            if (currentUserData) {
-                await endSession(currentUserData.uid);
-            }
-            currentUserData = null;
-            currentSessionId = null;
-            localStorage.removeItem('currentUser');
-            sessionStorage.removeItem('currentSessionId');
-            sessionStorage.removeItem('currentUserId');
-            hideEl('mainApp');
-            showEl('loginHub', 'flex');
+// ── App Initialization ─────────────────────────────────────────────────────
+function initApp() {
+    console.log('Main.js: initApp() called');
+    // Check if Firebase is initialized
+    if (!firebase.apps.length) {
+        console.error('Firebase not initialized');
+        window.location.href = '../auth/login.html';
+        return;
+    }
+
+    // Load current user data from localStorage or Firebase Auth
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        try {
+            currentUserData = JSON.parse(savedUser);
+            updateUserProfile({
+                displayName: currentUserData.displayName,
+                email: currentUserData.email
+            });
+            showEl('mainApp');
             hideEl('loadingOverlay');
-            const pendingMsg = document.getElementById('pendingStatusMessage');
-            if (pendingMsg) pendingMsg.remove();
-            sessionStorage.removeItem('pendingMessageShown');
-            if (sessionCheckInterval) {
-                clearInterval(sessionCheckInterval);
-                sessionCheckInterval = null;
-            }
+            initChat();
+            initForum();
+            initGameGrid();
+            console.log('Main.js: About to call initNotifications() from saved user path');
+            initNotifications();
+            switchSection('home');
+            return;
+        } catch(e) {
+            console.error('Error parsing saved user:', e);
         }
-    });
+    }
+
+    // Check Firebase Auth
+    const user = firebase.auth().currentUser;
+    if (user) {
+        currentUserData = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName
+        };
+        updateUserProfile({
+            displayName: currentUserData.displayName,
+            email: currentUserData.email
+        });
+        showEl('mainApp');
+        hideEl('loadingOverlay');
+        initChat();
+        initForum();
+        initGameGrid();
+        initNotifications();
+        switchSection('home');
+        return;
+    }
+
+    window.location.href = '../auth/login.html';
 }
 
 // ── DOMContentLoaded ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
-    db = firebase.firestore();
     
     var menuToggle = document.getElementById('menuToggleBtn');
     if (menuToggle) menuToggle.addEventListener('click', toggleSideMenu);
@@ -1077,167 +1105,15 @@ document.addEventListener('DOMContentLoaded', function(){
     var logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(){
-            firebase.auth().signOut().then(returnToHub);
-        });
-    }
-    
-    var loginBtn      = document.getElementById('loginBtn');
-    var emailInput    = document.getElementById('emailInput');
-    var passwordInput = document.getElementById('passwordInput');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function(){
-            var raw  = emailInput    ? emailInput.value.trim() : '';
-            var pass = passwordInput ? passwordInput.value     : '';
-            if (!raw || !pass) { alert('Please enter your username and password.'); return; }
-            var email = raw.includes('@') ? raw : raw + '@gamehub.local';
-            firebase.auth().signInWithEmailAndPassword(email, pass)
-                .catch(function(e){ 
-                    if (e.code === 'auth/user-not-found') {
-                        alert('Account not found. Please sign up first.');
-                    } else if (e.code === 'auth/wrong-password') {
-                        alert('Incorrect password. Please try again.');
-                    } else {
-                        alert('Login failed: ' + e.message);
-                    }
-                });
-        });
-        [emailInput, passwordInput].forEach(function(el){
-            if (el) el.addEventListener('keypress', function(e){ if (e.key === 'Enter') loginBtn.click(); });
-        });
-    }
-    
-    var checkStatusBtn = document.getElementById('checkStatusBtn');
-    if (checkStatusBtn) {
-        checkStatusBtn.addEventListener('click', async function() {
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                alert('Please log in first to check your status.');
-                return;
-            }
-            const username = user.email ? user.email.replace('@gamehub.local', '') : user.uid;
-            sessionStorage.setItem('justCheckedStatus', 'true');
-            
-            try {
-                const userDoc = await db.collection('users').doc(username).get();
-                if (userDoc.exists && userDoc.data().allowed === true) {
-                    console.log('✅ User is approved!');
-                    alert('🎉 Your account has been approved! You can now log in.');
-                    window.location.reload();
-                } else {
-                    const pendingDoc = await db.collection('pendingRequests').doc(username).get();
-                    if (pendingDoc.exists) {
-                        console.log('⏳ User is still pending');
-                        alert('⏳ Your account is still pending approval. Please wait for an administrator to approve your account.');
-                    } else {
-                        console.log('❌ No account found');
-                        alert('❌ Account not found. Please sign up first.');
-                    }
+            firebase.auth().signOut().then(function(){
+                localStorage.removeItem('currentUser');
+                if (window.SecureStorage) {
+                    window.SecureStorage.clearSession();
                 }
-            } catch(e) {
-                console.error('Error checking status:', e);
-                alert('Error checking status. Please try again.');
-            } finally {
-                setTimeout(() => sessionStorage.removeItem('justCheckedStatus'), 1000);
-            }
+                window.location.href = '../auth/login.html';
+            });
         });
     }
-    
-    var signupBtn      = document.getElementById('signupBtn');
-    var signupRealName = document.getElementById('signupRealName');
-    var signupName     = document.getElementById('signupName');
-    var signupPassword = document.getElementById('signupPassword');
-    var signupLink     = document.getElementById('signupLink');
-    var backToLogin    = document.getElementById('backToLogin');
-    
-    if (signupBtn) {
-        signupBtn.addEventListener('click', function(){
-            var real = signupRealName ? signupRealName.value.trim() : '';
-            var name = signupName ? signupName.value.trim() : '';
-            var pass = signupPassword ? signupPassword.value : '';
-            if (!name || !pass) { alert('Please fill in all fields.'); return; }
-            if (pass.length < 6) { alert('Password must be at least 6 characters.'); return; }
-            var email = name + '@gamehub.local';
-            
-            signupBtn.disabled = true;
-            signupBtn.textContent = 'Creating Account...';
-            
-            console.log('📝 Starting signup for:', name);
-            sessionStorage.setItem('signupInProgress', 'true');
-            
-            db.collection('users').doc(name).get()
-                .then(function(userDoc) {
-                    if (userDoc.exists) {
-                        alert('Username already exists. Please choose another.');
-                        signupBtn.disabled = false;
-                        signupBtn.textContent = 'Create Account';
-                        sessionStorage.removeItem('signupInProgress');
-                        return null;
-                    }
-                    return db.collection('pendingRequests').doc(name).get();
-                })
-                .then(function(pendingDoc) {
-                    if (pendingDoc && pendingDoc.exists) {
-                        alert('This username is already pending approval.');
-                        signupBtn.disabled = false;
-                        signupBtn.textContent = 'Create Account';
-                        sessionStorage.removeItem('signupInProgress');
-                        return null;
-                    }
-                    return firebase.auth().createUserWithEmailAndPassword(email, pass);
-                })
-                .then(function(userCredential) {
-                    if (!userCredential) return null;
-                    const user = userCredential.user;
-                    console.log('✅ Account created in Firebase Auth:', user.email);
-                    
-                    return user.updateProfile({ displayName: real || name })
-                        .then(function() {
-                            return db.collection('pendingRequests').doc(name).set({
-                                username: name,
-                                displayName: real || name,
-                                realName: real,
-                                uid: user.uid,
-                                email: email,
-                                requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                                status: 'pending'
-                            });
-                        })
-                        .then(function() {
-                            console.log('✅ Added to pendingRequests');
-                            sessionStorage.removeItem('signupInProgress');
-                            alert('Account created! Your account is pending approval. You will be notified when approved.');
-                            signupRealName.value = '';
-                            signupName.value = '';
-                            signupPassword.value = '';
-                            showEl('loginForm', 'flex');
-                            hideEl('signupForm');
-                            signupBtn.disabled = false;
-                            signupBtn.textContent = 'Create Account';
-                        });
-                })
-                .catch(function(error) {
-                    console.error('Signup error:', error);
-                    let errorMessage = 'Signup failed: ';
-                    switch(error.code) {
-                        case 'auth/email-already-in-use':
-                            errorMessage += 'This username is already taken. Please choose another.';
-                            break;
-                        case 'auth/weak-password':
-                            errorMessage += 'Password should be at least 6 characters.';
-                            break;
-                        default:
-                            errorMessage += error.message;
-                    }
-                    alert(errorMessage);
-                    signupBtn.disabled = false;
-                    signupBtn.textContent = 'Create Account';
-                    sessionStorage.removeItem('signupInProgress');
-                });
-        });
-    }
-    
-    if (signupLink) signupLink.addEventListener('click', function(e){ e.preventDefault(); showEl('signupForm'); hideEl('loginForm'); });
-    if (backToLogin) backToLogin.addEventListener('click', function(e){ e.preventDefault(); showEl('loginForm'); hideEl('signupForm'); });
     
     document.addEventListener('keydown', function(e){
         var overlay = document.getElementById('gameOverlay');
@@ -1268,5 +1144,5 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     
     showEl('loadingOverlay');
-    initAuth();
+    initApp();
 });

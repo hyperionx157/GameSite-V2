@@ -34,31 +34,39 @@
 
     // ── Resolve current user ─────────────────────────────────────────────────
     function resolveUser() {
+        // Try SecureStorage first
+        if (window.SecureStorage && window.SecureStorage.isAuthenticated()) {
+            const session = window.SecureStorage.getSession();
+            if (session) {
+                return {
+                    uid: session.uid,
+                    email: session.email,
+                    displayName: session.displayName
+                };
+            }
+        }
+        // Fallback to localStorage for migration
         const raw = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         if (raw) {
-            try { 
+            try {
                 const parsed = JSON.parse(raw);
-                if (parsed && (parsed.username || parsed.displayName)) {
-                    return parsed;
-                }
-            } catch (e) { /* ignore */ }
+                return parsed;
+            } catch(e) {
+                console.error('[LiveTracker] Error parsing user data:', e);
+            }
         }
-        // Always return a valid user object
-        return {
-            username:    'anon_' + Math.random().toString(36).slice(2, 8),
-            displayName: 'Anonymous'
-        };
+        return null;
     }
 
     let currentUser = resolveUser();
 
-// Safety check - ensure currentUser is never undefined
-if (!currentUser || !currentUser.username) {
-    currentUser = {
-        username:    'anon_' + Math.random().toString(36).slice(2, 8),
-        displayName: 'Anonymous'
-    };
-}
+    // Safety check - ensure currentUser is never undefined
+    if (!currentUser || !currentUser.username) {
+        currentUser = {
+            username:    'anon_' + Math.random().toString(36).slice(2, 8),
+            displayName: 'Anonymous'
+        };
+    }
 
     // Re-resolve whenever auth state changes (works with Firebase Auth)
     if (firebase.auth) {
