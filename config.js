@@ -20,12 +20,6 @@ async function loadFirebaseConfig() {
             const config = await response.json();
             window.FIREBASE_CONFIG = config;
             console.log('✅ Firebase config loaded from Cloudflare Worker');
-            
-            // Re-initialize Firebase with the correct config
-            if (firebase.apps.length > 0) {
-                firebase.app().delete();
-            }
-            firebase.initializeApp(config);
             return true;
         }
     } catch (error) {
@@ -44,12 +38,6 @@ async function loadFirebaseConfig() {
             measurementId: "G-3K434YVGSZ"
         };
         console.log('✅ Firebase config loaded from local fallback');
-        
-        // Re-initialize Firebase with local config
-        if (firebase.apps.length > 0) {
-            firebase.app().delete();
-        }
-        firebase.initializeApp(window.FIREBASE_CONFIG);
         return true;
     } else {
         // Show error for production
