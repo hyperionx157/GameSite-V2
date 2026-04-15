@@ -63,6 +63,12 @@ whitelist-manager.html
 *whitelist*
 *admin*
 
+# Configuration files with API keys - NEVER COMMIT
+config.js
+*config*
+firebase-config-worker.js
+wrangler.toml
+
 # Keep important files
 !index.html
 !assets/

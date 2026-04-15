@@ -1,0 +1,11 @@
+{
+  "name": "firebase-config-worker",
+  "version": "1.0.0",
+  "main": "firebase-config-worker.js",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
