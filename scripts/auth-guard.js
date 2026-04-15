@@ -73,19 +73,23 @@
                 }
                 
                 // User is authenticated and approved
-                console.log('Auth Guard: User authenticated and approved');
+                console.log('✅ Auth Guard: User authenticated and approved, showing page');
                 authCheckComplete = true;
                 
                 // Show the page content
                 const mainApp = document.getElementById('mainApp');
                 if (mainApp) {
                     mainApp.style.display = 'block';
+                    console.log('✅ Auth Guard: Main app shown');
+                } else {
+                    console.warn('⚠️ Auth Guard: mainApp element not found');
                 }
                 
                 // Hide loading overlay if it exists
                 const loadingOverlay = document.getElementById('loadingOverlay');
                 if (loadingOverlay) {
                     loadingOverlay.style.display = 'none';
+                    console.log('✅ Auth Guard: Loading overlay hidden');
                 }
                 
             } catch (error) {
@@ -99,8 +103,9 @@
         if (authCheckComplete) return; // Prevent multiple redirects
         authCheckComplete = true;
         
-        console.log('Auth Guard: Redirecting to login page');
-        window.location.href = '../auth/login.html';
+        console.log('Auth Guard: Redirecting to login page from:', window.location.href);
+        // Simple redirect to login page
+        window.location.href = '/GameSite-V2/auth/login.html';
     }
     
     // Start authentication check when page loads
