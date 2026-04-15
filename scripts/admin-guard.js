@@ -2,32 +2,46 @@
 (function() {
     'use strict';
     
-    // Firebase configuration - API key should be loaded from config.js
-    const firebaseConfig = window.FIREBASE_CONFIG || {
-        apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
-        authDomain: "githubv2-1b9d0.firebaseapp.com",
-        projectId: "githubv2-1b9d0",
-        storageBucket: "githubv2-1b9d0.firebasestorage.app",
-        messagingSenderId: "971057847754",
-        appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
-        measurementId: "G-3K434YVGSZ"
-    };
-    
-    // Initialize Firebase if not already initialized
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+    // Wait for Firebase config to load
+    async function initializeFirebaseConfig() {
+        let attempts = 0;
+        while (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'LOADING_CONFIG') {
+            if (attempts > 50) {
+                console.error('Admin Guard: Timeout waiting for Firebase config');
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        const firebaseConfig = window.FIREBASE_CONFIG || {
+            apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
+            authDomain: "githubv2-1b9d0.firebaseapp.com",
+            projectId: "githubv2-1b9d0",
+            storageBucket: "githubv2-1b9d0.firebasestorage.app",
+            messagingSenderId: "971057847754",
+            appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
+            measurementId: "G-3K434YVGSZ"
+        };
+        
+        // Initialize Firebase if not already initialized
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        // Enable debug mode for Firebase in development
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            firebase.firestore().settings({
+                timestampsInSnapshots: true
+            });
+            console.log('Admin Guard: Firebase debug mode enabled');
+        }
+        
+        return firebase.firestore();
     }
     
-    const db = firebase.firestore();
+    let db;
     let authCheckComplete = false;
-    
-    // Enable debug mode for Firebase in development
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-        firebase.firestore().settings({
-            timestampsInSnapshots: true
-        });
-        console.log('Admin Guard: Firebase debug mode enabled');
-    }
     
     // Check if user is admin (owner)
     function checkAdminAccess() {
@@ -299,16 +313,27 @@
     }
     
     // Start admin access check when page loads
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAdminAccess);
-    } else {
-        checkAdminAccess();
+    async function startAdminCheck() {
+        try {
+            db = await initializeFirebaseConfig();
+            checkAdminAccess();
+        } catch (error) {
+            console.error('Admin Guard: Firebase initialization error:', error);
+            showAccessDenied();
+        }
     }
     
     // Hide main content initially until admin check is complete
     const mainApp = document.getElementById('mainApp');
     if (mainApp) {
         mainApp.style.display = 'none';
+    }
+    
+    // Start admin access check when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startAdminCheck);
+    } else {
+        startAdminCheck();
     }
     
 })();

@@ -2,23 +2,37 @@
 (function() {
     'use strict';
     
-    // Firebase configuration - API key should be loaded from config.js
-    const firebaseConfig = window.FIREBASE_CONFIG || {
-        apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
-        authDomain: "githubv2-1b9d0.firebaseapp.com",
-        projectId: "githubv2-1b9d0",
-        storageBucket: "githubv2-1b9d0.firebasestorage.app",
-        messagingSenderId: "971057847754",
-        appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
-        measurementId: "G-3K434YVGSZ"
-    };
-    
-    // Initialize Firebase if not already initialized
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+    // Wait for Firebase config to load
+    async function initializeFirebaseConfig() {
+        let attempts = 0;
+        while (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'LOADING_CONFIG') {
+            if (attempts > 50) {
+                console.error('Auth Guard: Timeout waiting for Firebase config');
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        const firebaseConfig = window.FIREBASE_CONFIG || {
+            apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
+            authDomain: "githubv2-1b9d0.firebaseapp.com",
+            projectId: "githubv2-1b9d0",
+            storageBucket: "githubv2-1b9d0.firebasestorage.app",
+            messagingSenderId: "971057847754",
+            appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
+            measurementId: "G-3K434YVGSZ"
+        };
+        
+        // Initialize Firebase if not already initialized
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        return firebase.firestore();
     }
     
-    const db = firebase.firestore();
+    let db;
     let authCheckComplete = false;
     
     // Check if user is authenticated and approved
@@ -90,16 +104,27 @@
     }
     
     // Start authentication check when page loads
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAuthentication);
-    } else {
-        checkAuthentication();
+    async function startAuthCheck() {
+        try {
+            db = await initializeFirebaseConfig();
+            checkAuthentication();
+        } catch (error) {
+            console.error('Auth Guard: Firebase initialization error:', error);
+            redirectToLogin();
+        }
     }
     
     // Hide main content initially until auth check is complete
     const mainApp = document.getElementById('mainApp');
     if (mainApp) {
         mainApp.style.display = 'none';
+    }
+    
+    // Start authentication check when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startAuthCheck);
+    } else {
+        startAuthCheck();
     }
     
 })();
