@@ -6,7 +6,6 @@
 
 // ── Globals ─────────────────────────────────────────────────────────
 var currentUserData = null;
-var db;
 var authStateProcessed = false; // Flag to prevent infinite auth loops
 
 // ── Helper Functions ─────────────────────────────────────────────────────────
@@ -52,7 +51,7 @@ function initAuth() {
 
             setTimeout(async () => {
                 try {
-                    const doc = await db.collection('users').doc(username).get();
+                    const doc = await window.db.collection('users').doc(username).get();
                     console.log('📄 User document check:', doc.exists ? 'Exists' : 'Not found');
 
                     if (doc.exists && doc.data().allowed === true) {
@@ -71,18 +70,20 @@ function initAuth() {
                         }
                         // Also set localStorage as fallback for Main.js compatibility
                         localStorage.setItem('currentUser', JSON.stringify(currentUserData));
-                        db.collection('users').doc(username).update({
+                        window.db.collection('users').doc(username).update({
                             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
                         }).catch(() => {});
                         
-                        // Redirect to main application
-                        window.location.href = '../pages/index.html';
+                        // Redirect to main application (only if not already on a protected page)
+                        if (!window.location.pathname.includes('/pages/')) {
+                            window.location.href = '../pages/index.html';
+                        }
 
                     } else {
                         console.log('⚠️ User not approved - pending status');
                         
                         // Check if pending request exists
-                        const pendingDoc = await db.collection('pendingRequests').doc(username).get();
+                        const pendingDoc = await window.db.collection('pendingRequests').doc(username).get();
                         
                         if (pendingDoc.exists) {
                             console.log('⏳ User is pending approval - KEEPING USER LOGGED IN');
@@ -155,7 +156,7 @@ function initAuth() {
 
 // ── Approval Notification Listener ─────────────────────────────────────────────
 function listenForApprovalNotifications(username) {
-    db.collection('pendingRequests').doc(username)
+    window.db.collection('pendingRequests').doc(username)
         .onSnapshot(function(doc) {
             if (!doc.exists) {
                 console.log('✅ Pending request removed - user approved!');
@@ -209,7 +210,7 @@ function handleSignup() {
     console.log('📝 Starting signup for:', name);
     sessionStorage.setItem('signupInProgress', 'true');
     
-    db.collection('users').doc(name).get()
+    window.db.collection('users').doc(name).get()
         .then(function(userDoc) {
             if (userDoc.exists) {
                 alert('Username already exists. Please choose another.');
@@ -218,7 +219,7 @@ function handleSignup() {
                 sessionStorage.removeItem('signupInProgress');
                 return null;
             }
-            return db.collection('pendingRequests').doc(name).get();
+            return window.db.collection('pendingRequests').doc(name).get();
         })
         .then(function(pendingDoc) {
             if (pendingDoc && pendingDoc.exists) {
@@ -237,7 +238,7 @@ function handleSignup() {
             
             return user.updateProfile({ displayName: real || name })
                 .then(function() {
-                    return db.collection('pendingRequests').doc(name).set({
+                    return window.db.collection('pendingRequests').doc(name).set({
                         username: name,
                         displayName: real || name,
                         realName: real,
@@ -291,13 +292,13 @@ async function handleCheckStatus() {
     sessionStorage.setItem('justCheckedStatus', 'true');
     
     try {
-        const userDoc = await db.collection('users').doc(username).get();
+        const userDoc = await window.db.collection('users').doc(username).get();
         if (userDoc.exists && userDoc.data().allowed === true) {
             console.log('✅ User is approved!');
             alert('🎉 Your account has been approved! You can now log in.');
             window.location.reload();
         } else {
-            const pendingDoc = await db.collection('pendingRequests').doc(username).get();
+            const pendingDoc = await window.db.collection('pendingRequests').doc(username).get();
             if (pendingDoc.exists) {
                 console.log('⏳ User is still pending');
                 alert('⏳ Your account is still pending approval. Please wait for an administrator to approve your account.');
@@ -316,8 +317,8 @@ async function handleCheckStatus() {
 
 // ── DOMContentLoaded ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
-    if (!db) {
-        db = firebase.firestore();
+    if (!window.db) {
+        window.db = firebase.firestore();
     }
     
     // Login button
