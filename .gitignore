@@ -65,14 +65,17 @@ whitelist-manager.html
 
 # Configuration files with API keys - NEVER COMMIT
 config.js
-*config*
 firebase-config-worker.js
 wrangler.toml
+package.json
 
 # Keep important files
 !index.html
 !assets/
 !games/
-!*.js
 !*.css
 !*.html
+# Allow JS files except config files
+!*.js
+config.js
+firebase-config-worker.js
