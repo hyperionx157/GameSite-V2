@@ -52,8 +52,8 @@ const GAME_URLS = {
 };
 
 // ── Firebase Configuration ───────────────────────────────────────────────────────
-const firebaseConfig = {
-    apiKey: "AIzaSyD4dSgLokC2lGg3FFtVfImg7IspQgUyQgc",
+const firebaseConfig = window.FIREBASE_CONFIG || {
+    apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
     authDomain: "githubv2-1b9d0.firebaseapp.com",
     projectId: "githubv2-1b9d0",
     storageBucket: "githubv2-1b9d0.firebasestorage.app",
@@ -696,8 +696,6 @@ function listenForApprovalNotifications(username) {
                             refreshBtn.onclick = () => window.location.reload();
                         }
                     }
-                    
-                    alert('🎉 Your account has been approved! Click OK to log in.');
                     
                     setTimeout(() => window.location.reload(), 2000);
                 }

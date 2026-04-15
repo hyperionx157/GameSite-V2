@@ -160,7 +160,7 @@ function listenForApprovalNotifications(username) {
         .onSnapshot(function(doc) {
             if (!doc.exists) {
                 console.log('✅ Pending request removed - user approved!');
-                alert('🎉 Your account has been approved! You can now log in.');
+                // Notification will be shown by Main.js listener
                 window.location.reload();
                 return;
             }
