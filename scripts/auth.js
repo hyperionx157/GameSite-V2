@@ -316,7 +316,19 @@ async function handleCheckStatus() {
 }
 
 // ── DOMContentLoaded ─────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', async function(){
+    // Wait for Firebase to be initialized
+    let attempts = 0;
+    while (!firebase.apps.length) {
+        if (attempts > 100) {
+            console.error('Timeout waiting for Firebase initialization');
+            alert('Failed to initialize. Please refresh the page.');
+            return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
     if (!window.db) {
         window.db = firebase.firestore();
     }
