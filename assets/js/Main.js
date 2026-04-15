@@ -9,6 +9,7 @@ const GAME_URLS = {
     'baldi-plus':        CLOUDFLARE_R2_BASE + 'baldi-plus/index.html',
     'baldi-remaster':    CLOUDFLARE_R2_BASE + 'baldi-remaster/index.html',
     'getting-over-it':   CLOUDFLARE_R2_BASE + 'getting-over-it/index.html',
+    'helios-proxy':     'https://hyperionx157.github.io/Helios/',
     'hollow-knight':     CLOUDFLARE_R2_BASE + 'hollow-knight-main/index.html',
     'minesweeperplus':   CLOUDFLARE_R2_BASE + 'minesweeperplus/MinesweeperPlus.html',
     'pizza-tower':       CLOUDFLARE_R2_BASE + 'pizza-tower/index.html',
@@ -753,13 +754,21 @@ function loadItem(itemKey) {
     var overlay = document.getElementById('gameOverlay');
     var titleEl = document.getElementById('miniMenuItemTitle');
     if (!frame || !overlay) return;
-    frame.src = url;
-    if (titleEl) titleEl.textContent = '▶ ' + titleCase(itemKey);
-    overlay.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-    hideMiniMenu();
-    hideGameChat();
-    document.title = titleCase(itemKey) + ' — Dev Portal';
+    
+    // Handle proxy type differently
+    if (itemKey === 'helios-proxy') {
+        // Open proxy in about:blank page with iframe
+        openInAboutBlank('https://hyperionx157.github.io/Helios/');
+        return;
+    } else {
+        frame.src = url;
+        if (titleEl) titleEl.textContent = '▶ ' + titleCase(itemKey);
+        document.title = titleCase(itemKey) + ' — Dev Portal';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        hideMiniMenu();
+        hideGameChat();
+    }
 }
 
 function showMiniMenu() {
@@ -1005,9 +1014,32 @@ async function voteSuggestion(id, currentVotes, hasVoted) {
 }
 window.voteSuggestion = voteSuggestion;
 
+function openInAboutBlank(url) {
+    const newWindow = window.open('about:blank', '_blank');
+    newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Game</title>
+            <style>
+                body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+                iframe { width: 100%; height: 100%; border: none; }
+            </style>
+        </head>
+        <body>
+            <iframe src="${url}"></iframe>
+        </body>
+        </html>
+    `);
+    newWindow.document.close();
+}
+
 function initGameGrid() {
     document.querySelectorAll('.item-btn').forEach(function(btn){
         btn.addEventListener('click', function(){ loadItem(this.getAttribute('data-game')); });
+    });
+    document.querySelectorAll('.tool-card').forEach(function(card){
+        card.addEventListener('click', function(){ loadItem(this.getAttribute('data-game')); });
     });
     var searchInput = document.getElementById('searchInput');
     if (searchInput) {

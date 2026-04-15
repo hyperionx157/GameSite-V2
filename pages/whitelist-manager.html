@@ -243,9 +243,71 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="../scripts/auth-guard.js"></script>
+    <script src="../scripts/admin-guard.js"></script>
     <script src="../scripts/secure-storage.js"></script>
     <script src="../scripts/auth.js" defer></script>
+    
+    <!-- Additional Security Measures -->
+    <script>
+        // Immediate security check - runs before everything else
+        (function() {
+            'use strict';
+            
+            // Block access if not on HTTPS (in production) - allow localhost and local development
+            if (location.protocol === 'http:' && 
+                location.hostname !== 'localhost' && 
+                location.hostname !== '127.0.0.1' &&
+                !location.hostname.startsWith('192.168.') &&
+                !location.hostname.startsWith('10.') &&
+                !location.hostname.endsWith('.local')) {
+                location.replace(`https:${location.href.substring(location.protocol.length)}`);
+                return;
+            }
+            
+            // Clear any sensitive data from session storage
+            sessionStorage.removeItem('adminAccess');
+            sessionStorage.removeItem('tempAdminToken');
+            
+            // Add page visibility monitoring
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Page is hidden - log for security monitoring
+                    console.log('Security: Whitelist manager page hidden');
+                }
+            });
+            
+            // Prevent right-click context menu
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Block common developer shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+                if (e.keyCode === 123 || 
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
+                    (e.ctrlKey && e.keyCode === 85)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Monitor for console access attempts
+            let consoleOpened = false;
+            const checkConsole = setInterval(function() {
+                if (window.console && window.console.clear && !consoleOpened) {
+                    consoleOpened = true;
+                    console.clear();
+                    console.log('%c ACCESS DENIED', 'color: red; font-size: 50px; font-weight: bold;');
+                    console.log('%c This area is restricted to administrators only.', 'color: red; font-size: 20px;');
+                }
+            }, 1000);
+            
+            // Cleanup after 10 seconds
+            setTimeout(() => clearInterval(checkConsole), 10000);
+        })();
+    </script>
 </head>
 <body>
 

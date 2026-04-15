@@ -327,9 +327,41 @@ a.side-nav-link {
     text-align: center;
     position: relative;
     transition: all 0.22s;
+    cursor: pointer;
+}
+.tool-card:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 26px rgba(155,89,182,0.22);
 }
 .tool-card i { font-size: 2.2rem; color: var(--accent); margin-bottom: 0.6rem; display:block; }
 .tool-card h3 { font-size: 1rem; }
+.tool-card .tool-btn {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    width: 100%;
+}
+.tool-card .tool-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(155,89,182,0.22);
+}
+.tool-card .tool-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
 .coming-badge {
     display: inline-block;
     margin-top: 0.6rem;
