@@ -52,25 +52,40 @@ const GAME_URLS = {
 };
 
 // ── Firebase Configuration ───────────────────────────────────────────────────────
-const firebaseConfig = window.FIREBASE_CONFIG || {
-    apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
-    authDomain: "githubv2-1b9d0.firebaseapp.com",
-    projectId: "githubv2-1b9d0",
-    storageBucket: "githubv2-1b9d0.firebasestorage.app",
-    messagingSenderId: "971057847754",
-    appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
-    measurementId: "G-3K434YVGSZ"
-};
+// Firebase initialization is deferred until config loads from Cloudflare Worker
+var db;
 
-// Initialize Firebase
-try {
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-} catch (e) {
-    console.error('[Main] Firebase initialization error:', e);
+async function waitForFirebaseConfig() {
+    let attempts = 0;
+    while (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'LOADING_CONFIG' || window.FIREBASE_CONFIG.apiKey === 'MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS') {
+        if (attempts > 50) {
+            console.error('[Main] Timeout waiting for Firebase config');
+            break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
+    const firebaseConfig = window.FIREBASE_CONFIG || {
+        apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
+        authDomain: "githubv2-1b9d0.firebaseapp.com",
+        projectId: "githubv2-1b9d0",
+        storageBucket: "githubv2-1b9d0.firebasestorage.app",
+        messagingSenderId: "971057847754",
+        appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
+        measurementId: "G-3K434YVGSZ"
+    };
+    
+    try {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    } catch (e) {
+        console.error('[Main] Firebase initialization error:', e);
+    }
+    
+    db = firebase.firestore();
+    window.db = db;
+    console.log('[Main] Firebase initialized with valid config');
 }
-
-// ── Firebase db — assigned inside DOMContentLoaded ──────────────────
-var db = firebase.firestore();
 
 // ── Globals ─────────────────────────────────────────────────────────
 var currentUserData = null;
@@ -1062,12 +1077,15 @@ function updateUserProfile(user) {
 }
 
 // ── App Initialization ─────────────────────────────────────────────────────
-function initApp() {
+async function initApp() {
     console.log('Main.js: initApp() called');
+    
+    // Wait for Firebase config to load from Cloudflare Worker
+    await waitForFirebaseConfig();
+    
     // Check if Firebase is initialized
     if (!firebase.apps.length) {
-        console.error('Firebase not initialized');
-        window.location.href = '../auth/login.html';
+        console.error('Firebase not initialized after waiting');
         return;
     }
 
@@ -1094,8 +1112,14 @@ function initApp() {
         }
     }
 
-    // Check Firebase Auth
-    const user = firebase.auth().currentUser;
+    // Wait for Firebase Auth to restore session (don't check synchronously)
+    const user = await new Promise((resolve) => {
+        const unsubscribe = firebase.auth().onAuthStateChanged((u) => {
+            unsubscribe();
+            resolve(u);
+        });
+    });
+    
     if (user) {
         currentUserData = {
             uid: user.uid,
@@ -1116,7 +1140,8 @@ function initApp() {
         return;
     }
 
-    window.location.href = '../auth/login.html';
+    // No user found - auth-guard handles redirect, don't redirect here
+    console.log('Main.js: No user found, auth-guard will handle redirect');
 }
 
 // ── DOMContentLoaded ──────────────────────────────────────────────────
