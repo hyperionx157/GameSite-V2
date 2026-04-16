@@ -1,6 +1,5 @@
 // Authentication Guard - Protects pages from unauthorized access
-// NOTE: This script NEVER redirects. It only shows/hides content.
-// Main.js handles user verification. This prevents redirect loops.
+// Redirects unauthenticated users to login with loop protection.
 (function() {
     'use strict';
     
@@ -8,10 +7,28 @@
     
     function showPage() {
         authCheckDone = true;
+        // Clear redirect counter on successful page show
+        sessionStorage.removeItem('authGuardRedirects');
         const mainApp = document.getElementById('mainApp');
         if (mainApp) mainApp.style.display = 'block';
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) loadingOverlay.style.display = 'none';
+    }
+    
+    function redirectToLogin() {
+        if (authCheckDone) return;
+        authCheckDone = true;
+        
+        // Loop protection: if we've redirected more than 3 times in this session, stop
+        var count = parseInt(sessionStorage.getItem('authGuardRedirects') || '0', 10);
+        if (count >= 3) {
+            console.warn('[AuthGuard] Redirect loop detected, stopping. Clear session storage to retry.');
+            return;
+        }
+        sessionStorage.setItem('authGuardRedirects', String(count + 1));
+        
+        console.log('[AuthGuard] No authenticated user, redirecting to login');
+        window.location.href = '../auth/login.html';
     }
     
     async function runGuard() {
@@ -46,8 +63,8 @@
         });
         
         if (!user) {
-            // Not logged in — show page anyway, Main.js will handle display
-            showPage();
+            // Not logged in — redirect to login
+            redirectToLogin();
             return;
         }
         
@@ -58,14 +75,14 @@
             const userDoc = await db.collection('users').doc(username).get();
             
             if (userDoc.exists && userDoc.data().allowed === true) {
-                // Approved — show page
                 showPage();
             } else {
                 // Not approved — still show page, Main.js decides what to display
                 showPage();
             }
         } catch (err) {
-            // Firestore error — still show page, don't redirect
+            // Firestore error — still show page if user is authenticated (don't redirect)
+            console.warn('[AuthGuard] Firestore error, showing page for authenticated user:', err.message);
             showPage();
         }
     }
