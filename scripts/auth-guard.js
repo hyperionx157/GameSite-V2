@@ -2,6 +2,18 @@
 (function() {
     'use strict';
     
+    // Detect redirect loops
+    const redirectKey = 'authGuardRedirectCount';
+    const redirectTime = 'authGuardRedirectTime';
+    const now = Date.now();
+    const lastRedirectTime = parseInt(sessionStorage.getItem(redirectTime) || '0');
+    let redirectCount = parseInt(sessionStorage.getItem(redirectKey) || '0');
+    // Reset count if more than 10 seconds since last redirect
+    if (now - lastRedirectTime > 10000) {
+        redirectCount = 0;
+        sessionStorage.setItem(redirectKey, '0');
+    }
+    
     // Wait for Firebase config to load
     async function initializeFirebaseConfig() {
         let attempts = 0;
@@ -94,7 +106,18 @@
                 
             } catch (error) {
                 console.error('Auth Guard: Error checking authentication:', error);
-                redirectToLogin();
+                // If user IS authenticated but Firestore check failed,
+                // show the page anyway instead of redirecting to login (prevents loop)
+                if (user) {
+                    console.warn('Auth Guard: Firestore check failed but user is authenticated, showing page');
+                    authCheckComplete = true;
+                    const mainApp = document.getElementById('mainApp');
+                    if (mainApp) mainApp.style.display = 'block';
+                    const loadingOverlay = document.getElementById('loadingOverlay');
+                    if (loadingOverlay) loadingOverlay.style.display = 'none';
+                } else {
+                    redirectToLogin();
+                }
             }
         });
     }
@@ -103,8 +126,21 @@
         if (authCheckComplete) return; // Prevent multiple redirects
         authCheckComplete = true;
         
+        // Prevent redirect loops
+        redirectCount++;
+        sessionStorage.setItem(redirectKey, String(redirectCount));
+        sessionStorage.setItem(redirectTime, String(Date.now()));
+        
+        if (redirectCount > 3) {
+            console.error('Auth Guard: Redirect loop detected, stopping. Count:', redirectCount);
+            // Show the page instead of looping
+            const mainApp = document.getElementById('mainApp');
+            if (mainApp) mainApp.style.display = 'block';
+            sessionStorage.setItem(redirectKey, '0');
+            return;
+        }
+        
         console.log('Auth Guard: Redirecting to login page from:', window.location.href);
-        // Simple redirect to login page
         window.location.href = '/GameSite-V2/auth/login.html';
     }
     

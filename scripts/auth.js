@@ -74,8 +74,11 @@ function initAuth() {
                             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
                         }).catch(() => {});
                         
-                        // Redirect to main application (only if not already on a protected page)
-                        if (!window.location.pathname.includes('/pages/')) {
+                        // Redirect to main application (only if on login page)
+                        if (window.location.pathname.includes('/auth/')) {
+                            // Clear any redirect loop counters
+                            sessionStorage.removeItem('authGuardRedirectCount');
+                            sessionStorage.removeItem('authGuardRedirectTime');
                             window.location.href = '../pages/index.html';
                         }
 
@@ -317,6 +320,7 @@ async function handleCheckStatus() {
 
 // ── DOMContentLoaded ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async function(){
+    console.log('🔧 auth.js: Waiting for Firebase initialization...');
     // Wait for Firebase to be initialized
     let attempts = 0;
     while (!firebase.apps.length) {
@@ -328,6 +332,7 @@ document.addEventListener('DOMContentLoaded', async function(){
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
     }
+    console.log('✅ auth.js: Firebase is initialized, proceeding...');
     
     if (!window.db) {
         window.db = firebase.firestore();
