@@ -9,13 +9,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="../config.js"></script>
+    <script src="../config.js?v=2"></script>
     <script>
         // Wait for config.js to load Firebase config
         async function initializeFirebase() {
             // Wait a bit for config.js to fetch the config
             let attempts = 0;
-            while (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'LOADING_CONFIG') {
+            while (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'LOADING_CONFIG' || window.FIREBASE_CONFIG.apiKey === 'MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS') {
                 if (attempts > 50) {
                     console.error('Timeout waiting for Firebase config');
                     break;
@@ -47,8 +47,8 @@
             initializeFirebase();
         }
     </script>
-    <script src="../scripts/auth.js"></script>
-    <script src="../assets/js/settings.js" defer></script>
+    <script src="../scripts/auth.js?v=2"></script>
+    <script src="../assets/js/settings.js?v=2" defer></script>
 </head>
 <body>
 

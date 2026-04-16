@@ -137,8 +137,12 @@ function initAuth() {
                     }
                 } catch(error) {
                     console.error('Auth error:', error);
-                    firebase.auth().signOut();
-                    alert('Authentication error. Please try again.');
+                    // Don't sign out on Firestore errors - user IS authenticated
+                    if (error.code === 'permission-denied' || error.code === 'unavailable') {
+                        alert('Database access error: ' + error.message + '\nPlease try refreshing the page.');
+                    } else {
+                        alert('Login error: ' + error.message);
+                    }
                     hideEl('loadingOverlay');
                     showEl('loginHub', 'flex');
                 }
