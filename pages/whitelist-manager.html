@@ -243,10 +243,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="../config.js"></script>
-    <script src="../scripts/admin-guard.js"></script>
-    <script src="../scripts/secure-storage.js"></script>
-    <script src="../scripts/auth.js" defer></script>
+    <script src="../config.js?v=2"></script>
+    <script src="../scripts/admin-guard.js?v=3"></script>
+    <script src="../scripts/secure-storage.js?v=2"></script>
     
     <!-- Additional Security Measures -->
     <script>
@@ -386,19 +385,29 @@
 <div id="toast"></div>
 
 <script>
-// ─── Firebase ─────────────────────────────────────────────────────────────────
-const firebaseConfig = {
-    apiKey: "AIzaSyD4dSgLokC2lGg3FFtVfImg7IspQgUyQgc",
-    authDomain: "githubv2-1b9d0.firebaseapp.com",
-    projectId: "githubv2-1b9d0",
-    storageBucket: "githubv2-1b9d0.firebasestorage.app",
-    messagingSenderId: "971057847754",
-    appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
-    measurementId: "G-3K434YVGSZ"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// ─── Firebase (waits for real config from Cloudflare Worker) ─────────────────
+var db;
+async function initWhitelistFirebase() {
+    var attempts = 0;
+    while (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'LOADING_CONFIG' || window.FIREBASE_CONFIG.apiKey === 'MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS') {
+        if (attempts > 50) break;
+        await new Promise(function(r){ setTimeout(r, 100); });
+        attempts++;
+    }
+    var cfg = window.FIREBASE_CONFIG || {
+        apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
+        authDomain: "githubv2-1b9d0.firebaseapp.com",
+        projectId: "githubv2-1b9d0",
+        storageBucket: "githubv2-1b9d0.firebasestorage.app",
+        messagingSenderId: "971057847754",
+        appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
+        measurementId: "G-3K434YVGSZ"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    window.db = db;
+    console.log('[Whitelist] Firebase initialized with config');
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let approvedUsers = [];
@@ -464,8 +473,9 @@ function setStatus(msg, cls) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// REAL-TIME LISTENERS
+// REAL-TIME LISTENERS (started after Firebase init)
 // ═══════════════════════════════════════════════════════════════════════════════
+function startListeners() {
 
 // Approved Users - from users collection where allowed = true
 db.collection('users').where('allowed', '==', true).onSnapshot(snap => {
@@ -591,6 +601,8 @@ db.collection('contentSuggestions')
             listEl.appendChild(el);
         });
     }, err => console.error('Suggestions listener:', err));
+
+} // end startListeners
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // RENDER FUNCTIONS
@@ -897,7 +909,9 @@ function refreshAll() {
 // EVENT LISTENERS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await initWhitelistFirebase();
+    startListeners();
     document.getElementById('addUserBtn')?.addEventListener('click', addUser);
     document.getElementById('clearAllPendingBtn')?.addEventListener('click', clearAllPending);
     document.getElementById('kickAllUsersBtn')?.addEventListener('click', kickAllUsers);

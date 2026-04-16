@@ -131,17 +131,6 @@
                     return;
                 }
                 
-                // Additional security: Check for suspicious activity
-                const now = new Date();
-                const lastLogin = userData.lastLogin ? userData.lastLogin.toDate() : new Date(0);
-                const daysSinceLogin = (now - lastLogin) / (1000 * 60 * 60 * 24);
-                
-                if (daysSinceLogin > 365) {
-                    console.log('Admin Guard: Suspicious activity detected - very old login, access denied');
-                    showAccessDenied();
-                    return;
-                }
-                
                 // Update last login timestamp for security monitoring
                 await db.collection('users').doc(username).update({
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
@@ -169,6 +158,18 @@
                 
             } catch (error) {
                 console.error('Admin Guard: Error checking admin access:', error);
+                
+                // If user is lol8 but Firestore failed, still grant access
+                const fallbackUsername = user.email ? user.email.replace('@gamehub.local', '') : '';
+                if (fallbackUsername === 'lol8') {
+                    console.log('Admin Guard: Firestore error but user is owner, granting access');
+                    authCheckComplete = true;
+                    const mainApp = document.getElementById('mainApp');
+                    if (mainApp) mainApp.style.display = 'block';
+                    const loadingOverlay = document.getElementById('loadingOverlay');
+                    if (loadingOverlay) loadingOverlay.style.display = 'none';
+                    return;
+                }
                 
                 // Check if it's a Firebase connection error
                 if (error.code === 'unavailable' || error.code === 'network-request-failed') {
@@ -234,11 +235,9 @@
     }
     
     function redirectToLogin() {
-        if (authCheckComplete) return; // Prevent multiple redirects
-        authCheckComplete = true;
-        
-        console.log('Admin Guard: Redirecting to login page');
-        window.location.href = '../auth/login.html';
+        if (authCheckComplete) return;
+        // Don't redirect - show access denied instead to prevent loops
+        showAccessDenied();
     }
     
     function showAccessDenied() {

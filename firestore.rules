@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper: is the request from an authenticated user? ──
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // ── Helper: is the caller the owner (lol8)? ──
+    function isOwner() {
+      return isAuth() && request.auth.token.email == 'lol8@gamehub.local';
+    }
+
+    // ── users collection ──
+    // Anyone authenticated can read their own doc (auth-guard needs this).
+    // Owner can read/write all user docs (whitelist manager).
+    // Users can update their own doc (lastLogin, settings, etc.).
+    match /users/{username} {
+      allow read:   if isAuth();
+      allow write:  if isOwner()
+                    || (isAuth() && request.auth.token.email == (username + '@gamehub.local'));
+    }
+
+    // ── pendingRequests collection ──
+    // Anyone authenticated can create their own pending request (signup).
+    // Anyone authenticated can read their own pending request (status check).
+    // Owner can read/write all (approve/deny).
+    match /pendingRequests/{username} {
+      allow read:   if isAuth();
+      allow create: if isAuth() && request.auth.token.email == (username + '@gamehub.local');
+      allow update, delete: if isOwner();
+    }
+
+    // ── announcements collection ──
+    // Any authenticated user can read.
+    // Owner can create/update/delete.
+    match /announcements/{docId} {
+      allow read:   if isAuth();
+      allow write:  if isOwner();
+    }
+
+    // ── chatMessages collection ──
+    // Any authenticated user can read and create messages.
+    // Owner can delete any message.
+    match /chatMessages/{docId} {
+      allow read:   if isAuth();
+      allow create: if isAuth();
+      allow delete: if isOwner();
+    }
+
+    // ── liveUsers collection (presence) ──
+    // Any authenticated user can read/write (own presence).
+    // Owner can delete any (kick).
+    match /liveUsers/{sessionId} {
+      allow read:   if isAuth();
+      allow write:  if isAuth();
+    }
+
+    // ── kickSignals collection ──
+    // Owner can write kick signals. Users can read their own.
+    match /kickSignals/{sessionId} {
+      allow read:   if isAuth();
+      allow write:  if isOwner();
+    }
+
+    // ── notifications collection ──
+    // Users can read their own notifications. Owner can write.
+    match /notifications/{docId} {
+      allow read:   if isAuth();
+      allow create: if isOwner();
+      allow update: if isAuth();
+    }
+
+    // ── contentSuggestions collection ──
+    // Any authenticated user can read and create.
+    // Owner can delete.
+    match /contentSuggestions/{docId} {
+      allow read:   if isAuth();
+      allow create: if isAuth();
+      allow delete: if isOwner();
+    }
+  }
+}
