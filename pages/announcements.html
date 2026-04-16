@@ -253,123 +253,35 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="../scripts/auth-guard.js"></script>
-    <script src="../scripts/security-guard.js"></script>
-    <script src="../config.js"></script>
+    <script src="../config.js?v=2"></script>
+    <script src="../scripts/auth-guard.js?v=3"></script>
+    <script src="../scripts/security-guard.js?v=2"></script>
     <script>
-        // Initialize Firebase - API key should be loaded from config.js
-        const firebaseConfig = window.FIREBASE_CONFIG || {
-            apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
-            authDomain: "githubv2-1b9d0.firebaseapp.com",
-            projectId: "githubv2-1b9d0",
-            storageBucket: "githubv2-1b9d0.firebasestorage.app",
-            messagingSenderId: "971057847754",
-            appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
-            measurementId: "G-3K434YVGSZ"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        // Firebase initialization deferred until config loads from Cloudflare Worker
+        let db;
+        async function initFirebaseForPage() {
+            let attempts = 0;
+            while (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'LOADING_CONFIG' || window.FIREBASE_CONFIG.apiKey === 'MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS') {
+                if (attempts > 50) break;
+                await new Promise(r => setTimeout(r, 100));
+                attempts++;
+            }
+            const cfg = window.FIREBASE_CONFIG || {
+                apiKey: "MISSING_API_KEY_CONFIGURE_IN_CONFIG_JS",
+                authDomain: "githubv2-1b9d0.firebaseapp.com",
+                projectId: "githubv2-1b9d0",
+                storageBucket: "githubv2-1b9d0.firebasestorage.app",
+                messagingSenderId: "971057847754",
+                appId: "1:971057847754:web:c3e42f649e3c6ed17b8333",
+                measurementId: "G-3K434YVGSZ"
+            };
+            if (!firebase.apps.length) firebase.initializeApp(cfg);
+            db = firebase.firestore();
+            window.db = db;
         }
-        const db = firebase.firestore();
     </script>
-    <script src="../scripts/secure-storage.js"></script>
-    <script src="../assets/js/settings.js"></script>
-    <script src="../scripts/auth.js"></script>
-</head>
-<body>
-
-    <div id="mainApp">
-        <div id="sideMenu" class="side-menu">
-            <div class="side-menu-header">
-                <div class="side-logo">
-                    <i class="fas fa-cube"></i>
-                    <span>Dev Portal</span>
-                </div>
-            </div>
-            <div class="side-menu-user">
-                <div id="sideAvatarInitials" class="side-avatar"></div>
-                <div class="side-user-info">
-                    <span id="sideUserName" class="side-username"></span>
-                    <span id="sideUserReal" class="side-realname"></span>
-                </div>
-            </div>
-            <nav class="side-nav">
-                <a href="index.html" class="side-nav-btn" data-section="home">
-                    <i class="fas fa-home"></i><span>Home</span>
-                </a>
-                <a href="index.html#library" class="side-nav-btn" data-section="library">
-                    <i class="fas fa-cube"></i><span>Library</span>
-                </a>
-                <a href="index.html#tools" class="side-nav-btn" data-section="tools">
-                    <i class="fas fa-tools"></i><span>Tools</span>
-                </a>
-                <a href="index.html#forum" class="side-nav-btn" data-section="forum">
-                    <i class="fas fa-comment-dots"></i><span>Feedback</span>
-                </a>
-                <a href="index.html#chat" class="side-nav-btn" data-section="chat" id="navChatLink">
-                    <i class="fas fa-comments"></i><span>Live Chat</span>
-                    <span id="chatUnreadBadge" class="side-badge" style="display:none;">!</span>
-                </a>
-                <button class="side-nav-btn active" data-section="announcements">
-                    <i class="fas fa-bullhorn"></i><span>Announcements</span>
-                </button>
-                <a href="settings.html" class="side-nav-btn" data-section="settings">
-                    <i class="fas fa-cog"></i><span>Settings</span>
-                </a>
-            </nav>
-            <div class="side-menu-footer">
-                <button id="logoutBtn" class="side-logout-btn">
-                    <i class="fas fa-sign-out-alt"></i><span>Logout</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="mainContent" class="main-content">
-            <div class="topbar">
-                <button id="menuToggleBtn" class="menu-toggle-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 id="pageTitle" class="page-title">Announcements</h1>
-            </div>
-
-            <div class="announcements-container">
-                <div class="announcement-header">
-                    <h1><i class="fas fa-bullhorn"></i> Announcements</h1>
-                    <p>Stay updated with the latest news and updates</p>
-                </div>
-                
-                <div class="search-container">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Search announcements..." autocomplete="off">
-                        <button id="clearSearchBtn" class="clear-search-btn" style="display:none;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div id="searchResults" class="search-results"></div>
-                </div>
-                
-                <div id="adminPanel" class="admin-actions" style="display:none;">
-                    <h3><i class="fas fa-pen"></i> Create Announcement</h3>
-                    <div class="announcement-form">
-                        <input type="text" id="announcementTitle" placeholder="Announcement Title">
-                        <textarea id="announcementContent" placeholder="Write your announcement here..."></textarea>
-                        <button id="postAnnouncementBtn" class="post-btn">
-                            <i class="fas fa-paper-plane"></i> Post Announcement
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="announcementsList" class="announcements-list">
-                    <div class="no-announcements">
-                        <i class="fas fa-bullhorn"></i>
-                        <p>No announcements yet. Check back later!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <script src="../scripts/secure-storage.js?v=2"></script>
+    <script src="../assets/js/settings.js?v=2"></script>
     <script>
         let isAdmin = false;
         let currentUser = null;
@@ -586,7 +498,10 @@
             }
         }
 
-        function initAnnouncementsPage() {
+        async function initAnnouncementsPage() {
+            // Wait for Firebase to initialize with real config
+            await initFirebaseForPage();
+
             // Prevent Main.js from calling switchSection('home')
             const originalSwitchSection = window.switchSection;
             if (originalSwitchSection) {
@@ -606,6 +521,15 @@
             // Set page title to Announcements
             const pageTitle = document.getElementById('pageTitle');
             if (pageTitle) pageTitle.textContent = 'Announcements';
+
+            // Try to load profile from localStorage immediately
+            try {
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    updateUserProfile({ displayName: userData.displayName, email: userData.email });
+                }
+            } catch(e) {}
 
             // Wait for Firebase auth to be ready
             firebase.auth().onAuthStateChanged(user => {
