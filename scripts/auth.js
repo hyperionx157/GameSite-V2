@@ -51,8 +51,15 @@ function initAuth() {
 
             setTimeout(async () => {
                 try {
-                    const doc = await window.db.collection('users').doc(username).get();
-                    console.log('📄 User document check:', doc.exists ? 'Exists' : 'Not found');
+                    // Retry up to 3 times with delays to handle Firestore consistency across devices
+                    let doc = null;
+                    for (let i = 0; i < 3; i++) {
+                        doc = await window.db.collection('users').doc(username).get();
+                        console.log('📄 User doc check [' + (i+1) + '/3] for "' + username + '":', 
+                            doc.exists ? ('Exists, allowed=' + doc.data().allowed) : 'Not found');
+                        if (doc.exists && doc.data().allowed === true) break;
+                        if (i < 2) await new Promise(r => setTimeout(r, 1500));
+                    }
 
                     if (doc.exists && doc.data().allowed === true) {
                         console.log('✅ User is approved, granting access');
@@ -128,9 +135,9 @@ function initAuth() {
                             listenForApprovalNotifications(username);
                             
                         } else {
-                            console.log('❌ No pending request found for', username);
+                            console.log('❌ No user doc and no pending request for "' + username + '"');
                             firebase.auth().signOut();
-                            alert('Account not found. Please sign up first.');
+                            alert('Account "' + username + '" not found in whitelist. Ask admin to re-approve, or try signing up again.');
                             hideEl('loadingOverlay');
                             showEl('loginHub', 'flex');
                         }
