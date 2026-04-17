@@ -51,17 +51,17 @@ function initAuth() {
 
             setTimeout(async () => {
                 try {
-                    // Retry up to 3 times with delays to handle Firestore consistency across devices
+                    // Retry 3x quickly for Firestore consistency across devices
                     let doc = null;
                     for (let i = 0; i < 3; i++) {
                         doc = await window.db.collection('users').doc(username).get();
                         console.log('📄 User doc check [' + (i+1) + '/3] for "' + username + '":', 
                             doc.exists ? ('Exists, allowed=' + doc.data().allowed) : 'Not found');
                         if (doc.exists && doc.data().allowed === true) break;
-                        if (i < 2) await new Promise(r => setTimeout(r, 1500));
+                        if (i < 2) await new Promise(r => setTimeout(r, 800));
                     }
 
-                    if (doc.exists && doc.data().allowed === true) {
+                    if (doc && doc.exists && doc.data().allowed === true) {
                         console.log('✅ User is approved, granting access');
                         authStateProcessed = true; // Mark as processed
 
@@ -170,13 +170,44 @@ function initAuth() {
 
 // ── Approval Notification Listener ─────────────────────────────────────────────
 function listenForApprovalNotifications(username) {
+    // Listen on the USERS doc — fires the instant approval propagates to this device
+    const userUnsub = window.db.collection('users').doc(username)
+        .onSnapshot(function(doc) {
+            if (doc.exists && doc.data().allowed === true) {
+                console.log('✅ User doc appeared with allowed=true — redirecting');
+                userUnsub();
+                // Persist session data so index.html works immediately
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    const userData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || username,
+                        username: username
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                }
+                sessionStorage.removeItem('authGuardRedirects');
+                sessionStorage.removeItem('pendingMessageShown');
+                window.location.href = '../pages/index.html';
+            }
+        }, function(err) {
+            console.error('User doc listener error:', err);
+        });
+    
+    // Also listen for pending deletion as a backup trigger (in case users-doc listener fails)
     window.db.collection('pendingRequests').doc(username)
         .onSnapshot(function(doc) {
             if (!doc.exists) {
-                console.log('✅ Pending request removed - user approved!');
-                // Notification will be shown by Main.js listener
-                window.location.reload();
-                return;
+                console.log('⏳ Pending request removed — waiting for users doc to propagate');
+                // Don't reload immediately; the users-doc listener above will redirect when ready.
+                // Fallback: reload after 5s if the users listener didn't fire.
+                setTimeout(function() {
+                    if (!sessionStorage.getItem('approvalRedirected')) {
+                        sessionStorage.setItem('approvalRedirected', 'true');
+                        window.location.reload();
+                    }
+                }, 5000);
             }
         });
 }
