@@ -13,22 +13,24 @@ service cloud.firestore {
     }
 
     // ── users collection ──
-    // Anyone authenticated can read their own doc (auth-guard needs this).
+    // Allow reading individual docs without auth (signup username check).
     // Owner can read/write all user docs (whitelist manager).
     // Users can update their own doc (lastLogin, settings, etc.).
     match /users/{username} {
-      allow read:   if isAuth();
+      allow get:    if true;
+      allow list:   if isAuth();
       allow write:  if isOwner()
                     || (isAuth() && request.auth.token.email == (username + '@gamehub.local'));
     }
 
     // ── pendingRequests collection ──
-    // Anyone authenticated can create their own pending request (signup).
-    // Anyone authenticated can read their own pending request (status check).
+    // Allow reading individual docs without auth (signup duplicate check).
+    // Any authenticated user can create their own pending request.
     // Owner can read/write all (approve/deny).
     match /pendingRequests/{username} {
-      allow read:   if isAuth();
-      allow create: if isAuth() && request.auth.token.email == (username + '@gamehub.local');
+      allow get:    if true;
+      allow list:   if isAuth();
+      allow create: if isAuth();
       allow update, delete: if isOwner();
     }
 
@@ -70,6 +72,16 @@ service cloud.firestore {
       allow read:   if isAuth();
       allow create: if isOwner();
       allow update: if isAuth();
+    }
+
+    // ── activeSessions collection (multi-device detection) ──
+    // Users can read/write their own session doc (keyed by username).
+    // Owner can manage all.
+    match /activeSessions/{username} {
+      allow read:   if isAuth();
+      allow write:  if isOwner()
+                    || (isAuth() && request.auth.token.email == (username + '@gamehub.local'));
+      allow delete: if isAuth();
     }
 
     // ── contentSuggestions collection ──

@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 // ── Config ─────────────────────────────────────────────────────────
-const CLOUDFLARE_R2_BASE = 'https://assets.hyperionx15.com/';
+const CLOUDFLARE_R2_BASE = 'https://assets.hyperionx17.com/';
 
 const GAME_URLS = {
     'baldi-plus':        CLOUDFLARE_R2_BASE + 'baldi-plus/index.html',
@@ -156,109 +156,51 @@ function generateSessionId() {
     return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
 }
 
-async function registerSession(userId) {
+async function registerSession(username) {
     if (!currentSessionId) {
         currentSessionId = generateSessionId();
     }
     
     sessionStorage.setItem('currentSessionId', currentSessionId);
-    sessionStorage.setItem('currentUserId', userId);
-    localStorage.setItem('sessionUserId', userId);
+    sessionStorage.setItem('currentUserId', username);
     
     try {
-        const existingSession = await db.collection('activeSessions').doc(userId).get();
+        const existingSession = await db.collection('activeSessions').doc(username).get({ source: 'server' });
         
         if (existingSession.exists) {
             const existingData = existingSession.data();
-            const existingSessionId = existingData.sessionId;
             
-            if (existingSessionId === currentSessionId) {
-                console.log('✅ Session already registered, updating timestamp');
-                await db.collection('activeSessions').doc(userId).update({
-                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                    userAgent: navigator.userAgent
+            if (existingData.sessionId === currentSessionId) {
+                console.log('[Session] Already registered, updating timestamp');
+                await db.collection('activeSessions').doc(username).update({
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 return true;
             }
             
-            console.log('⚠️ Another session detected from different device/browser!');
-            console.log('Existing session:', existingSessionId);
-            console.log('Current session:', currentSessionId);
-            
-            const override = confirm('⚠️ Another device is using this account. Do you want to log them out and continue?\n\n(If you click Cancel, you will be logged out.)');
-            
-            if (override) {
-                await db.collection('activeSessions').doc(userId).delete();
-                console.log('✅ Overrode old session from other device');
-                toastMessage('Previous session was logged out. You are now the active user.', 'info');
-            } else {
-                await firebase.auth().signOut();
-                throw new Error('Session conflict - user chose not to override');
-            }
+            console.log('[Session] Another session detected:', existingData.sessionId);
         }
         
-        await db.collection('activeSessions').doc(userId).set({
+        // Write our session (overrides any existing)
+        await db.collection('activeSessions').doc(username).set({
             sessionId: currentSessionId,
-            userId: userId,
+            username: username,
             startedAt: firebase.firestore.FieldValue.serverTimestamp(),
             lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-            userAgent: navigator.userAgent,
-            ip: await getClientIP()
+            userAgent: navigator.userAgent
         });
-        console.log('✅ Session registered:', currentSessionId);
+        console.log('[Session] Registered:', currentSessionId);
         return true;
         
     } catch(e) {
-        console.error('Error registering session:', e);
-        throw e;
+        console.error('[Session] Error registering:', e);
+        return false;
     }
 }
 
-async function checkSessionValidity(userId) {
-    try {
-        const storedSessionId = sessionStorage.getItem('currentSessionId');
-        const storedUserId = sessionStorage.getItem('currentUserId');
-        
-        if (!storedSessionId) {
-            console.log('No stored session found, but this could be first page load');
-            return true;
-        }
-        
-        if (storedUserId !== userId) {
-            console.log('⚠️ Stored user ID mismatch, session invalid');
-            return false;
-        }
-        
-        const sessionDoc = await db.collection('activeSessions').doc(userId).get();
-        
-        if (!sessionDoc.exists) {
-            console.log('Session document not found in Firestore, will re-register');
-            return true;
-        }
-        
-        const session = sessionDoc.data();
-        
-        if (session.sessionId !== storedSessionId) {
-            console.log('⚠️ Session ID mismatch! Firestore:', session.sessionId, 'Storage:', storedSessionId);
-            console.log('⚠️ This likely means another device logged in');
-            showSessionConflictAlert();
-            return false;
-        }
-        
-        db.collection('activeSessions').doc(userId).update({
-            lastActive: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(() => {});
-        
-        return true;
-    } catch(e) {
-        console.error('Error checking session:', e);
-        return true;
-    }
-}
-
-function showSessionConflictAlert() {
+function showSessionConflictAlert(username) {
     const existing = document.getElementById('sessionConflictAlert');
-    if (existing) existing.remove();
+    if (existing) return; // Don't stack alerts
     
     const alertDiv = document.createElement('div');
     alertDiv.id = 'sessionConflictAlert';
@@ -269,56 +211,51 @@ function showSessionConflictAlert() {
         transform: translateX(-50%);
         background: linear-gradient(135deg, #e74c3c, #c0392b);
         color: white;
-        padding: 15px 25px;
-        border-radius: 10px;
+        padding: 20px 30px;
+        border-radius: 12px;
         z-index: 10001;
-        animation: slideDown 0.5s ease;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         font-family: inherit;
-        min-width: 320px;
+        min-width: 340px;
+        max-width: 90vw;
     `;
     alertDiv.innerHTML = `
-        <i class="fas fa-exclamation-triangle" style="font-size: 20px;"></i>
-        <strong style="display: block; margin-top: 5px;">Another Device Detected!</strong>
-        <p style="margin-top: 5px; font-size: 13px;">Someone else logged into your account.</p>
-        <div style="margin-top: 10px;">
-            <button id="overrideSessionBtn" style="margin: 0 5px; padding: 5px 15px; background: white; color: #e74c3c; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Log Them Out</button>
-            <button id="logoutSessionBtn" style="margin: 0 5px; padding: 5px 15px; background: rgba(255,255,255,0.3); color: white; border: none; border-radius: 5px; cursor: pointer;">Log Me Out</button>
+        <i class="fas fa-exclamation-triangle" style="font-size: 24px; color: #ffeaa7;"></i>
+        <strong style="display: block; margin-top: 8px; font-size: 16px;">Another Device Detected!</strong>
+        <p style="margin-top: 6px; font-size: 13px; opacity: 0.9;">Someone just logged into your account from another device.</p>
+        <div style="margin-top: 14px; display: flex; gap: 10px; justify-content: center;">
+            <button id="kickSessionBtn" style="padding: 8px 20px; background: white; color: #e74c3c; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;"><i class="fas fa-ban"></i> Kick Them</button>
+            <button id="dismissSessionBtn" style="padding: 8px 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; cursor: pointer; font-size: 13px;">Leave Them Be</button>
         </div>
     `;
     
     document.body.appendChild(alertDiv);
     
-    document.getElementById('overrideSessionBtn').onclick = async () => {
+    document.getElementById('kickSessionBtn').onclick = async () => {
         alertDiv.remove();
-        const user = firebase.auth().currentUser;
-        if (user) {
-            await db.collection('activeSessions').doc(user.uid).delete();
-            currentSessionId = generateSessionId();
-            sessionStorage.setItem('currentSessionId', currentSessionId);
-            await db.collection('activeSessions').doc(user.uid).set({
+        // Reclaim the session: write our sessionId back
+        currentSessionId = generateSessionId();
+        sessionStorage.setItem('currentSessionId', currentSessionId);
+        try {
+            await db.collection('activeSessions').doc(username).set({
                 sessionId: currentSessionId,
-                userId: user.uid,
+                username: username,
                 startedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                 userAgent: navigator.userAgent
             });
-            toastMessage('Other device logged out. You are now the active user.', 'success');
+            toastMessage('Other device has been kicked. You are the active session.', 'success');
+        } catch(e) {
+            console.error('[Session] Error reclaiming session:', e);
         }
     };
     
-    document.getElementById('logoutSessionBtn').onclick = () => {
+    document.getElementById('dismissSessionBtn').onclick = () => {
         alertDiv.remove();
-        firebase.auth().signOut();
+        // Just dismiss — do nothing, let both sessions coexist
+        toastMessage('Alert dismissed. Both sessions are active.', 'info');
     };
-    
-    setTimeout(() => {
-        if (alertDiv && alertDiv.parentNode) {
-            alertDiv.remove();
-            firebase.auth().signOut();
-        }
-    }, 10000);
 }
 
 function toastMessage(message, type) {
@@ -341,21 +278,20 @@ function toastMessage(message, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-async function endSession(userId) {
-    if (userId && currentSessionId) {
+async function endSession(username) {
+    if (username && currentSessionId) {
         try {
-            const sessionDoc = await db.collection('activeSessions').doc(userId).get();
+            const sessionDoc = await db.collection('activeSessions').doc(username).get();
             if (sessionDoc.exists && sessionDoc.data().sessionId === currentSessionId) {
-                await db.collection('activeSessions').doc(userId).delete();
-                console.log('✅ Session ended for:', userId);
+                await db.collection('activeSessions').doc(username).delete();
+                console.log('[Session] Ended for:', username);
             }
         } catch(e) {
-            console.error('Error ending session:', e);
+            console.error('[Session] Error ending:', e);
         }
     }
     sessionStorage.removeItem('currentSessionId');
     sessionStorage.removeItem('currentUserId');
-    localStorage.removeItem('sessionUserId');
 }
 
 async function getClientIP() {
@@ -368,23 +304,30 @@ async function getClientIP() {
     }
 }
 
-function startSessionMonitoring(userId) {
-    if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+function startSessionMonitoring(username) {
+    // Real-time listener — fires instantly when another device writes a new session
+    if (window._sessionUnsub) window._sessionUnsub();
     
-    sessionCheckInterval = setInterval(async () => {
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            clearInterval(sessionCheckInterval);
-            return;
-        }
-        
-        const isValid = await checkSessionValidity(userId);
-        if (!isValid) {
-            console.log('⚠️ Session invalid, showing conflict alert');
-            clearInterval(sessionCheckInterval);
-            showSessionConflictAlert();
-        }
-    }, 30000);
+    window._sessionUnsub = db.collection('activeSessions').doc(username)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return; // Session was cleaned up
+            const data = doc.data();
+            const mySessionId = sessionStorage.getItem('currentSessionId');
+            if (mySessionId && data.sessionId && data.sessionId !== mySessionId) {
+                console.log('[Session] Conflict detected! Mine:', mySessionId, 'Theirs:', data.sessionId);
+                showSessionConflictAlert(username);
+            }
+        }, function(err) {
+            console.error('[Session] Listener error:', err);
+        });
+    
+    // Also update lastActive every 60s
+    if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+    sessionCheckInterval = setInterval(function() {
+        db.collection('activeSessions').doc(username).update({
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function() {});
+    }, 60000);
 }
 
 // ── Chat Badge Functions ─────────────────────────────────────────────
@@ -1094,6 +1037,9 @@ async function initApp() {
     if (savedUser) {
         try {
             currentUserData = JSON.parse(savedUser);
+            if (!currentUserData.username && currentUserData.email) {
+                currentUserData.username = currentUserData.email.replace('@gamehub.local', '');
+            }
             updateUserProfile({
                 displayName: currentUserData.displayName,
                 email: currentUserData.email
@@ -1105,6 +1051,11 @@ async function initApp() {
             initGameGrid();
             console.log('Main.js: About to call initNotifications() from saved user path');
             initNotifications();
+            // Multi-device session management
+            if (currentUserData.username) {
+                registerSession(currentUserData.username);
+                startSessionMonitoring(currentUserData.username);
+            }
             switchSection('home');
             return;
         } catch(e) {
@@ -1121,10 +1072,12 @@ async function initApp() {
     });
     
     if (user) {
+        const username = user.email ? user.email.replace('@gamehub.local', '') : user.uid;
         currentUserData = {
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName
+            displayName: user.displayName,
+            username: username
         };
         updateUserProfile({
             displayName: currentUserData.displayName,
@@ -1136,6 +1089,9 @@ async function initApp() {
         initForum();
         initGameGrid();
         initNotifications();
+        // Multi-device session management
+        registerSession(username);
+        startSessionMonitoring(username);
         switchSection('home');
         return;
     }
@@ -1159,7 +1115,11 @@ document.addEventListener('DOMContentLoaded', function(){
     
     var logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(){
+        logoutBtn.addEventListener('click', async function(){
+            // End session before signing out
+            if (currentUserData && currentUserData.username) {
+                await endSession(currentUserData.username);
+            }
             firebase.auth().signOut().then(function(){
                 localStorage.removeItem('currentUser');
                 if (window.SecureStorage) {
@@ -1192,9 +1152,17 @@ document.addEventListener('DOMContentLoaded', function(){
     var gcClose = document.getElementById('gameChatClose');
     if (gcClose) gcClose.addEventListener('click', hideGameChat);
     
-    window.addEventListener('beforeunload', async () => {
-        if (currentUserData) {
-            await endSession(currentUserData.uid);
+    window.addEventListener('beforeunload', function() {
+        if (currentUserData && currentUserData.username) {
+            // Use sendBeacon for reliable cleanup on page close
+            // endSession is async but beforeunload can't await, so best-effort
+            try {
+                db.collection('activeSessions').doc(currentUserData.username).get().then(function(doc) {
+                    if (doc.exists && doc.data().sessionId === currentSessionId) {
+                        db.collection('activeSessions').doc(currentUserData.username).delete();
+                    }
+                });
+            } catch(e) {}
         }
     });
     
