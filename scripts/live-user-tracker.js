@@ -4,7 +4,7 @@
 // Requires Firebase SDK to be loaded first.
 // ═══════════════════════════════════════════════════════════════════════════
 
-(function () {
+(async function () {
     'use strict';
 
     // ── Guard: Firebase must be loaded ──────────────────────────────────────
@@ -13,17 +13,17 @@
         return;
     }
 
-    // ── Firebase Configuration ───────────────────────────────────────────────────────
-    // Always reuse Firebase from Main.js - don't initialize independently
-    let db;
-    
-    if (firebase.apps && firebase.apps.length > 0) {
-        // Firebase already initialized in Main.js, just get the database
-        db = firebase.firestore();
-    } else {
-        console.error('[LiveTracker] Firebase not initialized in Main.js');
-        return;
+    // ── Wait for Firebase to be initialized (async init on main pages) ──
+    let waitAttempts = 0;
+    while (!firebase.apps || firebase.apps.length === 0) {
+        if (waitAttempts > 100) {
+            console.error('[LiveTracker] Firebase initialization timeout');
+            return;
+        }
+        await new Promise(function(r){ setTimeout(r, 100); });
+        waitAttempts++;
     }
+    const db = firebase.firestore();
 
     // ── Session ID (persists for the browser tab) ────────────────────────────
     const SESSION_ID = sessionStorage.getItem('liveTrackerSessionId') || (function () {
