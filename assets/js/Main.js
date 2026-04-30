@@ -10,7 +10,7 @@ const GAME_URLS = {
     'baldi-remaster':    CLOUDFLARE_R2_BASE + 'baldi-remaster/index.html',
     'getting-over-it':   CLOUDFLARE_R2_BASE + 'getting-over-it/index.html',
     'helios-proxy':     'https://hyperionx157.github.io/Helios/',
-    'jackbox-proxy':    '../Proxy/Jackbox.html',
+    'jackbox-proxy':    '<a href="https://proxy.hyperionx17.com/index.html#https://jackbox.tv" target="_blank"> Jackbox TV</a>',
     'hollow-knight':     CLOUDFLARE_R2_BASE + 'hollow-knight-main/index.html',
     'minesweeperplus':   CLOUDFLARE_R2_BASE + 'minesweeperplus/MinesweeperPlus.html',
     'pizza-tower':       CLOUDFLARE_R2_BASE + 'pizza-tower/index.html',
