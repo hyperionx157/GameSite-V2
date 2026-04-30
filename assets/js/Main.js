@@ -11,7 +11,6 @@ const GAME_URLS = {
     'getting-over-it':   CLOUDFLARE_R2_BASE + 'getting-over-it/index.html',
     'helios-proxy':     'https://hyperionx157.github.io/Helios/',
     'jackbox-proxy':    '../Proxy/Jackbox.html',
-    'chatgpt-proxy':    '../Proxy/Chatgpt.html',
     'hollow-knight':     CLOUDFLARE_R2_BASE + 'hollow-knight-main/index.html',
     'minesweeperplus':   CLOUDFLARE_R2_BASE + 'minesweeperplus/MinesweeperPlus.html',
     'pizza-tower':       CLOUDFLARE_R2_BASE + 'pizza-tower/index.html',
@@ -714,7 +713,7 @@ function loadItem(itemKey) {
     if (!frame || !overlay) return;
     
     // Handle proxy type differently
-    if (itemKey === 'helios-proxy' || itemKey === 'jackbox-proxy' || itemKey === 'chatgpt-proxy') {
+    if (itemKey === 'helios-proxy' || itemKey === 'jackbox-proxy') {
         // Open proxy tools in about:blank page with iframe
         openInAboutBlank(url);
         return;
