@@ -10,7 +10,7 @@ const GAME_URLS = {
     'baldi-remaster':    CLOUDFLARE_R2_BASE + 'baldi-remaster/index.html',
     'getting-over-it':   CLOUDFLARE_R2_BASE + 'getting-over-it/index.html',
     'helios-proxy':     'https://hyperionx157.github.io/Helios/',
-    'jackbox-proxy':    '<a href="https://proxy.hyperionx17.com/index.html#https://jackbox.tv" target="_blank"> Jackbox TV</a>',
+    'jackbox-proxy':    'https://proxy.hyperionx17.com/index.html#https://jackbox.tv',
     'hollow-knight':     CLOUDFLARE_R2_BASE + 'hollow-knight-main/index.html',
     'minesweeperplus':   CLOUDFLARE_R2_BASE + 'minesweeperplus/MinesweeperPlus.html',
     'pizza-tower':       CLOUDFLARE_R2_BASE + 'pizza-tower/index.html',
@@ -713,9 +713,13 @@ function loadItem(itemKey) {
     if (!frame || !overlay) return;
     
     // Handle proxy type differently
-    if (itemKey === 'helios-proxy' || itemKey === 'jackbox-proxy') {
-        // Open proxy tools in about:blank page with iframe
+    if (itemKey === 'helios-proxy') {
+        // Open Helios proxy in about:blank page with iframe
         openInAboutBlank(url);
+        return;
+    } else if (itemKey === 'jackbox-proxy') {
+        // Open Jackbox TV in new tab
+        window.open(url, '_blank');
         return;
     } else {
         frame.src = url;
